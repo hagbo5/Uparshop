@@ -1,0 +1,6 @@
+Flask
+Flask-SQLAlchemy
+pymysql
+python-dotenv
+Werkzeug
+Pillow

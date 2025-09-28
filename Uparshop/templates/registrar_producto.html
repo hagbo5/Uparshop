@@ -1,0 +1,98 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+<div class="admin-products">
+    <h2 class="admin-users-title" style="margin-bottom:24px;"><i class="fas fa-plus"></i> Registrar Producto</h2>
+    <form method="post" enctype="multipart/form-data" class="register-product-form" style="max-width:540px; margin:0 auto;">
+        <!-- Información básica -->
+        <fieldset style="border:none; margin-bottom:18px;">
+            <legend style="font-size:1.1em; color:var(--accent-color); font-weight:600; margin-bottom:10px;"><i class="fas fa-info-circle"></i> Información básica</legend>
+            <div class="form-group">
+                <label for="id_producto"><i class="fas fa-barcode"></i> ID Producto</label>
+                <input type="number" name="id_producto" id="id_producto" placeholder="Ej: 1001">
+            </div>
+            <div class="form-group">
+                <label for="nombre"><i class="fas fa-tag"></i> Nombre</label>
+                <input type="text" name="nombre" id="nombre" required placeholder="Ej: Laptop Lenovo ThinkPad E14">
+            </div>
+            <div class="form-group">
+                <label for="descripcion_detallada"><i class="fas fa-align-left"></i> Descripción detallada</label>
+                <textarea name="descripcion_detallada" id="descripcion_detallada" rows="3" placeholder="Describe el producto, características, modelo, etc."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="imagen"><i class="fas fa-image"></i> Imagen</label>
+                <input type="file" name="imagen" id="imagen" accept="image/*">
+            </div>
+        </fieldset>
+
+        <!-- Precios y stock -->
+        <fieldset style="border:none; margin-bottom:18px;">
+            <legend style="font-size:1.1em; color:var(--accent-color); font-weight:600; margin-bottom:10px;"><i class="fas fa-dollar-sign"></i> Precios y stock</legend>
+            <div class="form-group">
+                <label for="precio_unitario"><i class="fas fa-dollar-sign"></i> Precio unitario</label>
+                <input type="number" step="0.01" name="precio_unitario" id="precio_unitario" required placeholder="Ej: 999.99">
+            </div>
+            <div class="form-group">
+                <label for="cantidad_stock"><i class="fas fa-boxes"></i> Cantidad en stock</label>
+                <input type="number" name="cantidad_stock" id="cantidad_stock" required placeholder="Ej: 20">
+            </div>
+            <div class="form-group" style="display:flex; gap:12px;">
+                <div style="flex:1;">
+                    <label for="stock_minimo"><i class="fas fa-exclamation-triangle"></i> Stock mínimo</label>
+                    <input type="number" name="stock_minimo" id="stock_minimo" placeholder="Ej: 2">
+                </div>
+                <div style="flex:1;">
+                    <label for="stock_maximo"><i class="fas fa-warehouse"></i> Stock máximo</label>
+                    <input type="number" name="stock_maximo" id="stock_maximo" placeholder="Ej: 100">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Categoría y estado -->
+        <fieldset style="border:none; margin-bottom:18px;">
+            <legend style="font-size:1.1em; color:var(--accent-color); font-weight:600; margin-bottom:10px;"><i class="fas fa-cubes"></i> Categoría y estado</legend>
+            <div class="form-group">
+                <label for="id_categoria"><i class="fas fa-cube"></i> Categoría</label>
+                <select name="id_categoria" id="id_categoria" required>
+                    <option value="" disabled selected>Selecciona una categoría</option>
+                    <option value="1">Torres</option>
+                    <option value="2">Laptops</option>
+                    <option value="3">Procesadores</option>
+                    <option value="4">Tarjetas Gráficas</option>
+                    <option value="5">Periféricos</option>
+                    <option value="6">Memorias</option>
+                    <option value="7">Fuentes</option>
+                    <option value="8">Juegos</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="estado"><i class="fas fa-toggle-on"></i> Estado</label>
+                <select name="estado" id="estado" required class="select-estado">
+                    <option value="activo" data-icon="fas fa-check-circle" data-color="#43b581">🟢 Activo</option>
+                    <option value="inactivo" data-icon="fas fa-times-circle" data-color="#e74c3c">🔴 Inactivo</option>
+                    <option value="promocion" data-icon="fas fa-bolt" data-color="#f1c40f">⚡ Promoción</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <!-- Garantía y unidad -->
+        <fieldset style="border:none; margin-bottom:10px;">
+            <legend style="font-size:1.1em; color:var(--accent-color); font-weight:600; margin-bottom:10px;"><i class="fas fa-shield-alt"></i> Garantía y unidad</legend>
+            <div class="form-group" style="display:flex; gap:12px;">
+                <div style="flex:1;">
+                    <label for="garantia_fecha"><i class="fas fa-calendar-alt"></i> Fecha de garantía</label>
+                    <input type="date" name="garantia_fecha" id="garantia_fecha">
+                </div>
+                <div style="flex:1;">
+                    <label for="unidad"><i class="fas fa-balance-scale"></i> Unidad</label>
+                    <input type="text" name="unidad" id="unidad" placeholder="Ej: pieza, caja, unidad">
+                </div>
+            </div>
+        </fieldset>
+
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:18px;">
+            <button type="submit" class="btn"><i class="fas fa-save"></i> Registrar producto</button>
+            <a href="{{ url_for('admin_productos') }}" class="btn" style="background:#415a77; color:#fff;"><i class="fas fa-times"></i> Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

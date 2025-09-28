@@ -1,0 +1,210 @@
+{% extends 'base_admin.html' %}
+{% block title %}Mensajes de Contacto - Admin{% endblock %}
+{% block content %}
+<h2 class="admin-mensajes-title">Mensajes de Contacto <small>Total: {{ total }}</small></h2>
+
+<form method="get" action="{{ url_for('admin_mensajes') }}" class="mensaje-toolbar admin-mensajes-filtros">
+  <input type="text" name="q" value="{{ q or '' }}" placeholder="Buscar (nombre, correo, asunto, texto)" aria-label="Buscar" />
+  <select name="estado" aria-label="Estado">
+    <option value="" {% if not estado %}selected{% endif %}>Todos</option>
+    <option value="noleidos" {% if estado=='noleidos' %}selected{% endif %}>No leídos</option>
+    <option value="leidos" {% if estado=='leidos' %}selected{% endif %}>Leídos</option>
+  </select>
+  <label class="filtro-fecha">Desde
+    <input type="date" name="fecha_desde" value="{{ fecha_desde or '' }}" />
+  </label>
+  <label class="filtro-fecha">Hasta
+    <input type="date" name="fecha_hasta" value="{{ fecha_hasta or '' }}" />
+  </label>
+  <input type="hidden" name="per_page" value="{{ per_page }}" />
+  <button class="btn small" type="submit">Filtrar</button>
+  <a href="{{ url_for('admin_mensajes') }}" class="btn small">Reset</a>
+</form>
+
+<div id="mensajeToolbar" class="mensaje-toolbar mensaje-toolbar-secondary">
+  <div class="toolbar-group">
+    <input id="filtroBusqueda" type="text" placeholder="Filtro rápido en página" aria-label="Filtro rápido" />
+  </div>
+  <label><input id="toggleSoloNoLeidos" type="checkbox" /> Solo no leídos</label>
+  <label><input id="toggleDensidad" type="checkbox" /> Compacto</label>
+  <button id="btnLimpiarFiltros" class="btn small" type="button">Limpiar</button>
+  <div class="toolbar-actions">
+    <button id="btnMarcarTodosLeidos" class="btn small mass-read" type="button" title="Marcar visibles como leídos">Visibles leídos</button>
+    <button id="btnExportarCSV" class="btn small export-csv" type="button" title="Exportar visibles a CSV">CSV</button>
+  </div>
+</div>
+
+<table class="admin-table" id="tablaMensajes">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Correo</th>
+      <th>Asunto</th>
+      <th>Mensaje</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in mensajes %}
+    <tr class="fila-mensaje {% if not m.leido %}message-unread{% endif %}" data-id="{{ m.id }}" data-leido="{{ 1 if m.leido else 0 }}" data-nombre="{{ m.nombre|lower }}" data-correo="{{ m.correo|lower }}" data-asunto="{{ (m.asunto or '')|lower }}" data-texto="{{ (m.mensaje or '')|lower }}">
+      <td>{{ m.id }}</td>
+      <td>{{ m.nombre }}</td>
+      <td>{{ m.correo }}</td>
+      <td>{{ m.asunto or '' }}</td>
+      <td class="mensaje-col-texto">{{ m.mensaje }}</td>
+      <td>{{ m.creado_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td><span class="badge-estado {{ 'badge-leido' if m.leido else 'badge-noleido' }}">{{ 'LEÍDO' if m.leido else 'NO LEÍDO' }}</span></td>
+      <td class="acciones-col">
+        <button type="button" class="btn small ver-mensaje" data-id="{{ m.id }}" title="Ver detalle">Ver</button>
+        {% if not m.leido %}
+        <form method="post" action="{{ url_for('admin_mensajes_marcar') }}" class="form-marcar" data-id="{{ m.id }}">
+          <input type="hidden" name="id" value="{{ m.id }}">
+          <input type="hidden" name="mark" value="read">
+          <button class="btn small" title="Marcar leído">✓</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('admin_mensajes_marcar') }}" class="form-marcar" data-id="{{ m.id }}">
+          <input type="hidden" name="id" value="{{ m.id }}">
+          <input type="hidden" name="mark" value="unread">
+          <button class="btn small" title="Marcar no leído">↺</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if pagination %}
+  <div class="pagination">
+    {% if pagination.has_prev %}
+      <a class="btn small" href="?page={{ pagination.prev_num }}&q={{ q }}&estado={{ estado }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&per_page={{ per_page }}">Anterior</a>
+    {% endif %}
+    <span> Página {{ pagination.page }} de {{ pagination.pages }} ({{ total }} resultados) </span>
+    {% if pagination.has_next %}
+      <a class="btn small" href="?page={{ pagination.next_num }}&q={{ q }}&estado={{ estado }}&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&per_page={{ per_page }}">Siguiente</a>
+    {% endif %}
+  </div>
+{% endif %}
+
+<div id="mensajeModal" class="mensaje-modal" style="display:none;">
+  <div class="mensaje-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalAsunto">
+    <div class="mensaje-modal-header">
+      <h3 id="modalAsunto">Asunto</h3>
+      <button type="button" id="modalClose" aria-label="Cerrar" class="modal-close" title="Cerrar">&times;</button>
+    </div>
+    <div class="mensaje-modal-meta">
+      <span id="modalNombre"></span> &lt;<span id="modalCorreo"></span>&gt; • <span id="modalFecha"></span>
+      <span id="modalEstado" class="badge-estado badge-noleido">NO LEÍDO</span>
+    </div>
+    <div id="modalMensaje" class="mensaje-modal-body"></div>
+    <div class="mensaje-modal-footer">
+      <button type="button" id="modalMarcar" class="btn small">Marcar leído</button>
+      <button type="button" id="modalCerrar" class="btn small">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const modal = document.getElementById('mensajeModal');
+  const btnClose = document.getElementById('modalClose');
+  const btnCerrar = document.getElementById('modalCerrar');
+  const btnMarcar = document.getElementById('modalMarcar');
+  const asuntoEl = document.getElementById('modalAsunto');
+  const nombreEl = document.getElementById('modalNombre');
+  const correoEl = document.getElementById('modalCorreo');
+  const fechaEl = document.getElementById('modalFecha');
+  const estadoEl = document.getElementById('modalEstado');
+  const mensajeEl = document.getElementById('modalMensaje');
+  const badge = document.getElementById('badge-mensajes');
+  const filtro = document.getElementById('filtroBusqueda');
+  const chkNoLeidos = document.getElementById('toggleSoloNoLeidos');
+  const chkDensidad = document.getElementById('toggleDensidad');
+  const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+  const btnMarcarTodosLeidos = document.getElementById('btnMarcarTodosLeidos');
+  const btnExportar = document.getElementById('btnExportarCSV');
+  const filas = Array.from(document.querySelectorAll('#tablaMensajes tbody tr.fila-mensaje'));
+  let currentId = null; let currentLeido = false; let lastFocused = null;
+
+  function trapFocus(e){ if(!modal.classList.contains('open')) return; if(e.key !== 'Tab') return; const focusables = modal.querySelectorAll('button'); if(!focusables.length) return; const first = focusables[0]; const last = focusables[focusables.length-1]; if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } }
+  function openModal(){ lastFocused = document.activeElement; modal.style.display='block'; requestAnimationFrame(()=>{ modal.classList.add('open'); btnClose.focus(); }); document.addEventListener('keydown', trapFocus); }
+  function closeModal(){ modal.classList.remove('open'); setTimeout(()=>{ modal.style.display='none'; if(lastFocused) lastFocused.focus(); },180); document.removeEventListener('keydown', trapFocus); }
+
+  function fetchMensaje(id){ fetch(`/admin/mensajes/${id}/json`).then(r=>r.json()).then(data=>{ if(!data.ok) return; currentId = data.id; currentLeido = data.leido; asuntoEl.textContent = data.asunto || '(Sin asunto)'; nombreEl.textContent = data.nombre; correoEl.textContent = data.correo; fechaEl.textContent = data.creado_at; mensajeEl.textContent = data.mensaje; estadoEl.textContent = data.leido? 'LEÍDO':'NO LEÍDO'; estadoEl.classList.toggle('badge-leido', !!data.leido); estadoEl.classList.toggle('badge-noleido', !data.leido); btnMarcar.textContent = data.leido? 'Marcar no leído':'Marcar leído'; openModal(); }); }
+  function marcar(leer){ if(currentId==null) return; const formData = new FormData(); formData.append('id', currentId); formData.append('mark', leer? 'read':'unread'); fetch('/admin/mensajes/marcar', { method:'POST', body: formData }).then(r=>r.json()).then(resp=>{ if(!resp.ok) return; currentLeido = leer; estadoEl.textContent = leer? 'LEÍDO':'NO LEÍDO'; estadoEl.classList.toggle('badge-leido', leer); estadoEl.classList.toggle('badge-noleido', !leer); btnMarcar.textContent = leer? 'Marcar no leído':'Marcar leído'; if(badge){ let val = parseInt(badge.textContent || '0', 10) || 0; if(leer && val>0) { badge.textContent = (val-1)||''; } if(!leer){ badge.textContent = (val+1); } } const row = document.querySelector(`tr.fila-mensaje[data-id="${currentId}"]`); if(row){ row.dataset.leido = leer? '1':'0'; row.classList.toggle('message-unread', !leer); const estadoCell = row.querySelector('.badge-estado'); if(estadoCell){ estadoCell.textContent = leer? 'LEÍDO':'NO LEÍDO'; estadoCell.classList.toggle('badge-leido', leer); estadoCell.classList.toggle('badge-noleido', !leer); } } aplicarFiltros(); }); }
+
+  function aplicarFiltros(){ const term = (filtro.value || '').trim().toLowerCase(); const soloNo = chkNoLeidos.checked; let visibles=0; filas.forEach(tr=>{ const matchesTexto = !term || (tr.dataset.nombre.includes(term) || tr.dataset.correo.includes(term) || tr.dataset.asunto.includes(term) || tr.dataset.texto.includes(term)); const matchesLeido = !soloNo || tr.dataset.leido === '0'; const show = matchesTexto && matchesLeido; tr.style.display = show? '':'none'; if(show) visibles++; }); btnMarcarTodosLeidos.disabled = visibles===0; btnExportar.disabled = visibles===0; }
+  function limpiar(){ filtro.value=''; chkNoLeidos.checked=false; aplicarFiltros(); filtro.focus(); }
+  function toggleDensidad(){ document.getElementById('tablaMensajes').classList.toggle('compact', chkDensidad.checked); }
+  function marcarVisiblesLeidos(){ const visibles = filas.filter(tr=>tr.style.display!== 'none' && tr.dataset.leido==='0'); if(!visibles.length) return; visibles.forEach(tr=>{ const id = tr.dataset.id; const fd = new FormData(); fd.append('id', id); fd.append('mark','read'); fetch('/admin/mensajes/marcar',{method:'POST', body:fd, headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}}).then(r=>r.json()).then(resp=>{ if(resp.ok){ tr.dataset.leido='1'; tr.classList.remove('message-unread'); const badgeEstado = tr.querySelector('.badge-estado'); if(badgeEstado){ badgeEstado.textContent='LEÍDO'; badgeEstado.classList.add('badge-leido'); badgeEstado.classList.remove('badge-noleido'); } if(badge){ let val = parseInt(badge.textContent || '0', 10) || 0; if(val>0){ badge.textContent = (val-1)||''; } } aplicarFiltros(); }}).catch(()=>{/* opcional: ignorar */}); }); }
+  // Interceptar formularios de marcar leído/no leído para evitar recarga y mostrar JSON en página
+  function interceptarFormulariosMarcar(){
+    document.querySelectorAll('form.form-marcar').forEach(form=>{
+      if(form.dataset.enhanced==='1') return; // evitar doble binding
+      form.dataset.enhanced='1';
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const fd = new FormData(form);
+        const id = fd.get('id');
+        const mark = fd.get('mark');
+        fetch('/admin/mensajes/marcar', { method:'POST', body: fd, headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'} })
+          .then(r=>r.json())
+          .then(resp=>{
+            if(!resp.ok){ return; }
+            const leer = (mark === 'read');
+            const row = document.querySelector(`tr.fila-mensaje[data-id="${id}"]`);
+            if(row){
+              row.dataset.leido = leer? '1':'0';
+              row.classList.toggle('message-unread', !leer);
+              const est = row.querySelector('.badge-estado');
+              if(est){
+                est.textContent = leer? 'LEÍDO':'NO LEÍDO';
+                est.classList.toggle('badge-leido', leer);
+                est.classList.toggle('badge-noleido', !leer);
+              }
+              // Actualizar botón / inputs del propio formulario para permitir revertir sin recarga
+              const inputMark = form.querySelector('input[name="mark"]');
+              const btn = form.querySelector('button');
+              if(inputMark && btn){
+                if(leer){
+                  inputMark.value = 'unread';
+                  btn.textContent = '↺';
+                  btn.title = 'Marcar no leído';
+                } else {
+                  inputMark.value = 'read';
+                  btn.textContent = '✓';
+                  btn.title = 'Marcar leído';
+                }
+              }
+            }
+            // Actualizar badge global de no leídos
+            if(badge){
+              let val = parseInt(badge.textContent || '0', 10) || 0;
+              if(leer && val>0) badge.textContent = (val-1)||''; else if(!leer) badge.textContent = (val+1);
+            }
+            aplicarFiltros();
+          })
+          .catch(()=>{ // fallback silencioso: si falla, permitir envío normal
+            form.submit();
+          });
+      });
+    });
+  }
+  function exportarCSV(){ const rows = [['ID','Nombre','Correo','Asunto','Mensaje','Fecha','Leído']]; filas.forEach(tr=>{ if(tr.style.display==='none') return; const cols = tr.querySelectorAll('td'); const linea = Array.from(cols).slice(0,7).map(td=> '"'+ (td.textContent||'').replace(/"/g,'""') +'"'); rows.push(linea); }); const csv = rows.map(r=>r.join(',')).join('\n'); const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mensajes.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1500); }
+
+  document.querySelectorAll('.ver-mensaje').forEach(btn=> btn.addEventListener('click', ()=> fetchMensaje(btn.dataset.id)) );
+  btnClose.addEventListener('click', closeModal); btnCerrar.addEventListener('click', closeModal); modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); }); btnMarcar.addEventListener('click', ()=>marcar(!currentLeido)); document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
+  filtro.addEventListener('input', aplicarFiltros); chkNoLeidos.addEventListener('change', aplicarFiltros); btnLimpiar.addEventListener('click', limpiar); chkDensidad.addEventListener('change', toggleDensidad); btnMarcarTodosLeidos.addEventListener('click', marcarVisiblesLeidos); btnExportar.addEventListener('click', exportarCSV);
+  // Ajustar fetch de función marcar (modal) para incluir cabeceras AJAX
+  const originalMarcarFn = marcar; // ya definida arriba
+  // Reescribir la función marcar para incluir headers sin duplicar lógica (pequeño wrapper)
+  function marcar(leer){ if(currentId==null) return; const formData = new FormData(); formData.append('id', currentId); formData.append('mark', leer? 'read':'unread'); fetch('/admin/mensajes/marcar', { method:'POST', body: formData, headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'} }).then(r=>r.json()).then(resp=>{ if(!resp.ok) return; currentLeido = leer; estadoEl.textContent = leer? 'LEÍDO':'NO LEÍDO'; estadoEl.classList.toggle('badge-leido', leer); estadoEl.classList.toggle('badge-noleido', !leer); btnMarcar.textContent = leer? 'Marcar no leído':'Marcar leído'; if(badge){ let val = parseInt(badge.textContent || '0', 10) || 0; if(leer && val>0) { badge.textContent = (val-1)||''; } if(!leer){ badge.textContent = (val+1); } } const row = document.querySelector(`tr.fila-mensaje[data-id="${currentId}"]`); if(row){ row.dataset.leido = leer? '1':'0'; row.classList.toggle('message-unread', !leer); const estadoCell = row.querySelector('.badge-estado'); if(estadoCell){ estadoCell.textContent = leer? 'LEÍDO':'NO LEÍDO'; estadoCell.classList.toggle('badge-leido', leer); estadoCell.classList.toggle('badge-noleido', !leer); } } aplicarFiltros(); }).catch(()=>{}); }
+  interceptarFormulariosMarcar();
+  aplicarFiltros();
+})();
+</script>
+{% endblock %}
