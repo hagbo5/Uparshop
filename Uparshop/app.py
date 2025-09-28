@@ -6,7 +6,8 @@ from flask import abort
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from dotenv import load_dotenv
 import os
-from models import db, Producto, Categoria, User, ContactMessage
+from Uparshop.models import db, Producto, Categoria, User, ContactMessage
+
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
@@ -962,3 +963,4 @@ def autocomplete_admin_usuarios():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
