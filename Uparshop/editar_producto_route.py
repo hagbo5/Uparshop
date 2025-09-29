@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, session
-from models import db, Producto, Categoria
+from Uparshop.models import db, Producto, Categoria
 from flask import current_app as app  # Import the app instance
 
 @app.route('/admin/productos/editar/<int:producto_id>', methods=['GET', 'POST'])
@@ -56,3 +56,4 @@ def editar_producto(producto_id):
     db.session.commit()
     flash('Producto actualizado correctamente.', 'success')
     return redirect(url_for('admin_productos'))
+
