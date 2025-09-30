@@ -901,6 +901,31 @@ def registrar_producto():
         garantia_fecha = request.form.get('garantia_fecha')
         unidad = request.form.get('unidad')
 
+        # Procesar fecha de garantía - convertir cadena vacía a None
+        if garantia_fecha:
+            try:
+                from datetime import datetime
+                garantia_fecha = datetime.strptime(garantia_fecha, '%Y-%m-%d').date()
+            except ValueError:
+                garantia_fecha = None
+        else:
+            garantia_fecha = None
+
+        # Procesar unidad - asignar valor por defecto si está vacía
+        if not unidad or unidad.strip() == '':
+            unidad = 'unidad'
+
+        # Procesar valores numéricos y asignar valores por defecto seguros
+        try:
+            precio_unitario = float(precio_unitario) if precio_unitario else 0.0
+            cantidad_stock = int(cantidad_stock) if cantidad_stock else 0
+            stock_minimo = int(stock_minimo) if stock_minimo else 0
+            stock_maximo = int(stock_maximo) if stock_maximo else 1000
+            id_categoria = int(id_categoria) if id_categoria else None
+        except (ValueError, TypeError):
+            flash('Error en los valores numéricos. Verifica que los campos de precio y cantidades tengan valores válidos.', 'error')
+            return redirect(url_for('registrar_producto'))
+
         # Manejo de imagen subida
         imagen_file = request.files.get('imagen')
         imagen_url = None
