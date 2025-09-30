@@ -4,7 +4,7 @@ from flask import abort
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from dotenv import load_dotenv
 import os
-from models import db, Producto, Categoria, User, ContactMessage
+from .models import db, Producto, Categoria, User, ContactMessage
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
