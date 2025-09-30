@@ -882,66 +882,75 @@ def registrar_producto():
     if not session.get('user_rol') == 'admin':
         flash('Acceso restringido solo para administradores.', 'error')
         return redirect(url_for('home'))
-    from models import Categoria
-    if request.method == 'GET':
-        categorias = Categoria.query.all()
-        return render_template('registrar_producto.html', categorias=categorias)
-    # POST: procesar registro
-    nombre = request.form.get('nombre')
-    descripcion_detallada = request.form.get('descripcion_detallada')
-    precio_unitario = request.form.get('precio_unitario')
-    cantidad_stock = request.form.get('cantidad_stock')
-    stock_minimo = request.form.get('stock_minimo')
-    stock_maximo = request.form.get('stock_maximo')
-    id_categoria = request.form.get('id_categoria')
-    estado = request.form.get('estado')
-    garantia_fecha = request.form.get('garantia_fecha')
-    unidad = request.form.get('unidad')
+    
+    try:
+        from models import Categoria
+        if request.method == 'GET':
+            categorias = Categoria.query.all()
+            return render_template('registrar_producto.html', categorias=categorias)
+        
+        # POST: procesar registro
+        nombre = request.form.get('nombre')
+        descripcion_detallada = request.form.get('descripcion_detallada')
+        precio_unitario = request.form.get('precio_unitario')
+        cantidad_stock = request.form.get('cantidad_stock')
+        stock_minimo = request.form.get('stock_minimo')
+        stock_maximo = request.form.get('stock_maximo')
+        id_categoria = request.form.get('id_categoria')
+        estado = request.form.get('estado')
+        garantia_fecha = request.form.get('garantia_fecha')
+        unidad = request.form.get('unidad')
 
-    # Manejo de imagen subida
-    imagen_file = request.files.get('imagen')
-    imagen_url = None
-    if imagen_file and imagen_file.filename:
-        import os
-        from werkzeug.utils import secure_filename
-        # Ruta absoluta a la carpeta static/productos dentro del proyecto
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        productos_dir = os.path.join(base_dir, 'static', 'productos')
-        if not os.path.exists(productos_dir):
-            os.makedirs(productos_dir)
-        filename = secure_filename(imagen_file.filename)
-        # Evitar sobrescribir archivos
-        base, ext = os.path.splitext(filename)
-        i = 1
-        save_path = os.path.join(productos_dir, filename)
-        while os.path.exists(save_path):
-            filename = f"{base}_{i}{ext}"
+        # Manejo de imagen subida
+        imagen_file = request.files.get('imagen')
+        imagen_url = None
+        if imagen_file and imagen_file.filename:
+            import os
+            from werkzeug.utils import secure_filename
+            # Ruta absoluta a la carpeta static/productos dentro del proyecto
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            productos_dir = os.path.join(base_dir, 'static', 'productos')
+            if not os.path.exists(productos_dir):
+                os.makedirs(productos_dir)
+            filename = secure_filename(imagen_file.filename)
+            # Evitar sobrescribir archivos
+            base, ext = os.path.splitext(filename)
+            i = 1
             save_path = os.path.join(productos_dir, filename)
-            i += 1
-        imagen_file.save(save_path)
-        imagen_url = f"/static/productos/{filename}"
+            while os.path.exists(save_path):
+                filename = f"{base}_{i}{ext}"
+                save_path = os.path.join(productos_dir, filename)
+                i += 1
+            imagen_file.save(save_path)
+            imagen_url = f"/static/productos/{filename}"
 
-    if not nombre or not precio_unitario or not cantidad_stock or not id_categoria or not estado:
-        flash('Todos los campos obligatorios deben ser completados.', 'error')
+        if not nombre or not precio_unitario or not cantidad_stock or not id_categoria or not estado:
+            flash('Todos los campos obligatorios deben ser completados.', 'error')
+            return redirect(url_for('registrar_producto'))
+        
+        from models import Producto
+        nuevo_producto = Producto(
+            nombre=nombre,
+            descripcion_detallada=descripcion_detallada,
+            precio_unitario=precio_unitario,
+            cantidad_stock=cantidad_stock,
+            stock_minimo=stock_minimo,
+            stock_maximo=stock_maximo,
+            imagen_url=imagen_url,
+            id_categoria=id_categoria,
+            estado=estado,
+            garantia_fecha=garantia_fecha,
+            unidad=unidad
+        )
+        db.session.add(nuevo_producto)
+        db.session.commit()
+        flash('Producto registrado exitosamente.', 'success')
+        return redirect(url_for('admin_productos'))
+    
+    except Exception as e:
+        flash(f'Error al registrar producto: {str(e)}', 'error')
+        app.logger.error(f"Error en registrar_producto: {e}")
         return redirect(url_for('registrar_producto'))
-    from models import Producto
-    nuevo_producto = Producto(
-        nombre=nombre,
-        descripcion_detallada=descripcion_detallada,
-        precio_unitario=precio_unitario,
-        cantidad_stock=cantidad_stock,
-        stock_minimo=stock_minimo,
-        stock_maximo=stock_maximo,
-        imagen_url=imagen_url,
-        id_categoria=id_categoria,
-        estado=estado,
-        garantia_fecha=garantia_fecha,
-        unidad=unidad
-    )
-    db.session.add(nuevo_producto)
-    db.session.commit()
-    flash('Producto registrado exitosamente.', 'success')
-    return redirect(url_for('admin_productos'))
 
 
 
