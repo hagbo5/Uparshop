@@ -51,13 +51,13 @@ class User(db.Model):
     __tablename__ = 'usuarios'
     id_usuario = db.Column(db.Integer, primary_key=True)
     nombre_completo = db.Column(db.String(255), nullable=False)
-    correo_electronico = db.Column(db.String(255), unique=True, nullable=False)
+    correo = db.Column(db.String(255), unique=True, nullable=False)
     contrasena = db.Column(db.String(255), nullable=False)  # Cambiado aquí
     rol = db.Column(db.String(50), default='cliente')
     estado = db.Column(db.String(20), default='activo')
 
     def __repr__(self):
-        return f"<User {self.correo_electronico}>"
+        return f"<User {self.correo}>"
 
 
 class ContactMessage(db.Model):

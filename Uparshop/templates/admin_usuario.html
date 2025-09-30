@@ -96,7 +96,7 @@
             <tr>
                 <td>{{ usuario.id_usuario }}</td>
                 <td>{{ usuario.nombre_completo }}</td>
-                <td>{{ usuario.correo_electronico }}</td>
+                <td>{{ usuario.correo }}</td>
                 <td>
                     {% if usuario.id_usuario != 1 %}
                         <form method="post" action="{{ url_for('cambiar_rol_usuario') }}" style="display:inline;">

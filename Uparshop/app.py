@@ -455,14 +455,14 @@ def login():
     if not email or not password:
         flash('Correo y contraseña son requeridos.', 'error')
         return redirect(url_for('login'))
-    user = User.query.filter_by(correo_electronico=email).first()
+    user = User.query.filter_by(correo=email).first()
     if user:
         if user.estado != 'activo':
             flash('Tu cuenta se encuentra inactiva. Por favor comunícate con soporte técnico.', 'error')
             return redirect(url_for('login'))
         if user.contrasena == password:
             session['user_id'] = user.id_usuario
-            session['user_email'] = user.correo_electronico
+            session['user_email'] = user.correo
             session['user_rol'] = user.rol
             flash('Sesión iniciada.', 'success')
             return redirect(url_for('home'))
@@ -499,7 +499,7 @@ def admin_usuario():
 
     query = User.query
     if q:
-        query = query.filter((User.nombre_completo.ilike(f"%{q}%")) | (User.correo_electronico.ilike(f"%{q}%")))
+        query = query.filter((User.nombre_completo.ilike(f"%{q}%")) | (User.correo.ilike(f"%{q}%")))
 
     try:
         pagination = query.order_by(User.id_usuario.asc()).paginate(page=page, per_page=per_page, error_out=False)
@@ -600,12 +600,12 @@ def crear_cuenta():
     if password != password2:
         flash('Las contraseñas no coinciden.', 'error')
         return redirect(url_for('crear_cuenta'))
-    if User.query.filter_by(correo_electronico=email).first():
+    if User.query.filter_by(correo=email).first():
         flash('El correo ya está registrado.', 'error')
         return redirect(url_for('crear_cuenta'))
     nuevo_usuario = User(
         nombre_completo=nombre,
-        correo_electronico=email,
+        correo=email,
         contrasena=password,
         rol='cliente',
         estado='activo'
@@ -689,11 +689,11 @@ def editar_usuario(usuario_id):
     if not nombre or not email:
         flash('Nombre y correo son obligatorios.', 'error')
         return redirect(url_for('editar_usuario', usuario_id=usuario_id))
-    if User.query.filter(User.correo_electronico == email, User.id_usuario != usuario_id).first():
+    if User.query.filter(User.correo == email, User.id_usuario != usuario_id).first():
         flash('El correo ya está registrado por otro usuario.', 'error')
         return redirect(url_for('editar_usuario', usuario_id=usuario_id))
     usuario.nombre_completo = nombre
-    usuario.correo_electronico = email
+    usuario.correo = email
     usuario.identificacion = identificacion
     usuario.direccion = direccion
     usuario.telefono_contacto = telefono_contacto
@@ -950,9 +950,9 @@ def autocomplete_admin_usuarios():
         return jsonify([])
     try:
         results = User.query.filter(
-            (User.nombre_completo.ilike(f"%{q}%")) | (User.correo_electronico.ilike(f"%{q}%"))
+            (User.nombre_completo.ilike(f"%{q}%")) | (User.correo.ilike(f"%{q}%"))
         ).limit(10).all()
-        suggestions = [{'id': u.id_usuario, 'nombre': u.nombre_completo, 'correo': u.correo_electronico} for u in results]
+        suggestions = [{'id': u.id_usuario, 'nombre': u.nombre_completo, 'correo': u.correo} for u in results]
         return jsonify(suggestions)
     except Exception as e:
         app.logger.error(f"Error en autocomplete admin usuarios: {e}")
