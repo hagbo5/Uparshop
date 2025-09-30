@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, session
-from Uparshop.models import db, Producto, Categoria
+from models import db, Producto, Categoria
 from flask import current_app as app  # Import the app instance
 
 @app.route('/admin/productos/editar/<int:producto_id>', methods=['GET', 'POST'])
