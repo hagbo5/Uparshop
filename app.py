@@ -39,6 +39,9 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     }
 }
 
+# Configuración de la clave secreta para sesiones y formularios
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'uparshop-secret-key-2024-secure-flask-sessions')
+
 # Inicializar extensión con la app
 db.init_app(app)
 
