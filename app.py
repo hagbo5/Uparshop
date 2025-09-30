@@ -95,8 +95,13 @@ def get_products_by_category_name(category_name):
 @app.route('/')
 def home():
     """Página principal"""
-    productos_destacados = Producto.query.order_by(Producto.id_producto.desc()).limit(8).all()
-    return render_template('index.html', productos_destacados=productos_destacados)
+    try:
+        productos_destacados = Producto.query.order_by(Producto.id_producto.desc()).limit(8).all()
+        return render_template('index.html', productos_destacados=productos_destacados)
+    except Exception as e:
+        # Si hay error de BD, mostrar página sin productos
+        app.logger.error(f"Error en home page: {e}")
+        return render_template('index.html', productos_destacados=[], error_message="Error de conexión a la base de datos")
 
 @app.route('/lista-precios')
 def lista_precios():
@@ -621,15 +626,32 @@ def crear_cuenta():
 
 @app.route('/test-db')
 def test_db():
+    diagnostico = []
     try:
-        # Ejecuta una consulta simple para verificar la conexión
+        # Test 1: Conexión básica
         result = db.session.execute(text('SELECT 1')).scalar()
         if result == 1:
-            return 'Conexión exitosa a la base de datos MySQL (XAMPP) uparshop_bd.'
-        else:
-            return 'Conexión establecida, pero la consulta no devolvió el resultado esperado.'
+            diagnostico.append("✅ Conexión básica a MySQL exitosa")
+        
+        # Test 2: Verificar tablas
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tablas = inspector.get_table_names()
+        diagnostico.append(f"✅ Tablas encontradas: {', '.join(tablas) if tablas else 'Ninguna'}")
+        
+        # Test 3: Test de modelos
+        try:
+            categorias_count = Categoria.query.count()
+            productos_count = Producto.query.count()
+            usuarios_count = User.query.count()
+            diagnostico.append(f"✅ Conteos: {categorias_count} categorías, {productos_count} productos, {usuarios_count} usuarios")
+        except Exception as model_error:
+            diagnostico.append(f"❌ Error en modelos: {model_error}")
+        
+        return "<br>".join(diagnostico)
+        
     except Exception as e:
-        return f'Error de conexión a la base de datos: {e}'
+        return f'❌ Error de conexión a la base de datos: {e}<br>DB_HOST: {os.getenv("DB_HOST", "No configurado")}<br>DB_NAME: {os.getenv("DB_NAME", "No configurado")}'
 
 
 @app.route('/admin/usuarios/cambiar-rol', methods=['POST'])
