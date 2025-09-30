@@ -19,11 +19,12 @@ print("🚀 Iniciando aplicación Uparshop - Todos los imports corregidos")
 app = Flask(__name__)
 
 # Configuración de la base de datos DigitalOcean
-DB_USER = os.getenv('DB_USER', 'doadmin')
-DB_PASS = os.getenv('DB_PASS', 'AVNS_vpW0rR3lfKCIZfRnYqt')
-DB_HOST = os.getenv('DB_HOST', 'uparshop-bd-do-user-26734553-0.k.db.ondigitalocean.com')
-DB_PORT = os.getenv('DB_PORT', '25060')
-DB_NAME = os.getenv('DB_NAME', 'uparshop_bd')
+# Usar valores directos si las variables de entorno no están disponibles
+DB_USER = os.getenv('DB_USER') or 'doadmin'
+DB_PASS = os.getenv('DB_PASS') or 'AVNS_vpW0rR3lfKCIZfRnYqt'
+DB_HOST = os.getenv('DB_HOST') or 'uparshop-bd-do-user-26734553-0.k.db.ondigitalocean.com'
+DB_PORT = os.getenv('DB_PORT') or '25060'
+DB_NAME = os.getenv('DB_NAME') or 'uparshop_bd'
 
 # URI para MySQL usando PyMySQL con puerto y SSL
 app.config['SQLALCHEMY_DATABASE_URI'] = (
@@ -628,6 +629,13 @@ def crear_cuenta():
 def test_db():
     diagnostico = []
     try:
+        # Mostrar configuración actual
+        diagnostico.append(f"🔧 DB_HOST: {DB_HOST}")
+        diagnostico.append(f"🔧 DB_NAME: {DB_NAME}")
+        diagnostico.append(f"🔧 DB_USER: {DB_USER}")
+        diagnostico.append(f"🔧 DB_PORT: {DB_PORT}")
+        diagnostico.append("<br>")
+        
         # Test 1: Conexión básica
         result = db.session.execute(text('SELECT 1')).scalar()
         if result == 1:
@@ -651,7 +659,7 @@ def test_db():
         return "<br>".join(diagnostico)
         
     except Exception as e:
-        return f'❌ Error de conexión a la base de datos: {e}<br>DB_HOST: {os.getenv("DB_HOST", "No configurado")}<br>DB_NAME: {os.getenv("DB_NAME", "No configurado")}'
+        return f'❌ Error de conexión a la base de datos: {e}<br><br>Configuración:<br>DB_HOST: {DB_HOST}<br>DB_NAME: {DB_NAME}<br>DB_USER: {DB_USER}'
 
 
 @app.route('/admin/usuarios/cambiar-rol', methods=['POST'])
