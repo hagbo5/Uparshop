@@ -9,29 +9,28 @@ db = SQLAlchemy()
 class Categoria(db.Model):
     __tablename__ = 'categorias'
     id_categoria = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False, unique=True)  # Agregado nullable=False y unique
+    nombre = db.Column(db.String(100), nullable=False, unique=True)
     descripcion = db.Column(db.Text)
-    estado = db.Column(db.Enum('activo', 'inactivo'), nullable=False, default='activo')  # Corregido: ahora es ENUM
+    estado = db.Column(db.String(20), nullable=False, default='activo')  # Volvemos a String temporalmente
 
     def __repr__(self):
         return f"<Categoria {self.nombre}>"
 
 
-
 class Producto(db.Model):
     __tablename__ = 'productos'
     id_producto = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(255), nullable=False)  # Agregado nullable=False
-    descripcion_detallada = db.Column(db.Text, nullable=False)  # Agregado nullable=False
-    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)  # Agregado nullable=False
-    cantidad_stock = db.Column(db.Integer, nullable=False, default=0)  # Agregado nullable=False y default
-    stock_minimo = db.Column(db.Integer, nullable=False, default=0)  # Agregado nullable=False y default
-    stock_maximo = db.Column(db.Integer, nullable=False, default=0)  # Agregado nullable=False y default
+    nombre = db.Column(db.String(255), nullable=False)
+    descripcion_detallada = db.Column(db.Text, nullable=False)
+    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
+    cantidad_stock = db.Column(db.Integer, nullable=False, default=0)
+    stock_minimo = db.Column(db.Integer, nullable=False, default=0)
+    stock_maximo = db.Column(db.Integer, nullable=False, default=0)
     imagen_url = db.Column(db.String(255))
     id_categoria = db.Column(db.Integer, db.ForeignKey('categorias.id_categoria'))
-    estado = db.Column(db.Enum('activo', 'inactivo', 'promocion'), nullable=False, default='activo')  # Corregido: ahora es ENUM
+    estado = db.Column(db.String(20), nullable=False, default='activo')  # Volvemos a String temporalmente
     garantia_fecha = db.Column(db.Date)
-    unidad = db.Column(db.Integer)  # Corregido: era String(50), ahora es Integer según tu BD
+    unidad = db.Column(db.Integer)  # Mantenemos Integer
     categoria = db.relationship('Categoria', backref='productos')
 
     def __repr__(self):
@@ -51,12 +50,12 @@ class User(db.Model):
     __tablename__ = 'usuarios'
     id_usuario = db.Column(db.Integer, primary_key=True)
     nombre_completo = db.Column(db.String(255), nullable=False)
-    correo = db.Column(db.String(100), unique=True, nullable=False)  # Corregido: era correo_electronico
-    telefono = db.Column(db.String(20))  # Agregado: campo faltante
-    direccion = db.Column(db.String(255))  # Agregado: campo faltante
+    correo = db.Column(db.String(100), unique=True, nullable=False)
+    telefono = db.Column(db.String(20))
+    direccion = db.Column(db.String(255))
     contrasena = db.Column(db.String(255), nullable=False)
-    rol = db.Column(db.Enum('admin', 'vendedor', 'cliente'), default='cliente')  # Corregido: ahora es ENUM
-    estado = db.Column(db.Enum('activo', 'inactivo'), default='activo')  # Corregido: ahora es ENUM
+    rol = db.Column(db.String(50), default='cliente')  # Volvemos a String temporalmente
+    estado = db.Column(db.String(20), default='activo')  # Volvemos a String temporalmente
 
     def __repr__(self):
         return f"<User {self.correo}>"
