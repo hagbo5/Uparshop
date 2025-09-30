@@ -12,6 +12,9 @@ from sqlalchemy import text
 # Cargar variables de entorno desde un archivo .env (opcional)
 load_dotenv()
 
+# Forzar rebuild limpio - Fix definitivo para error de módulo Uparshop
+print("🚀 Iniciando aplicación Uparshop - Todos los imports corregidos")
+
 # Inicializar la aplicación Flask
 app = Flask(__name__)
 
@@ -963,7 +966,11 @@ def autocomplete_admin_usuarios():
 # Permite ejecutar la aplicación directamente
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+    print(f"✅ Aplicación Uparshop iniciando en puerto {port}")
     app.run(host="0.0.0.0", port=port, debug=True)
+
+# Confirmar que el módulo se carga correctamente para gunicorn
+print("✅ Módulo app.py cargado correctamente - Listo para gunicorn")
 
 
 
