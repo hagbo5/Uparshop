@@ -749,6 +749,47 @@ def init_data():
         return f"❌ Error al insertar datos: {e}"
 
 
+@app.route('/static/productos/<filename>')
+def serve_product_image(filename):
+    """Servir imágenes de productos desde el directorio static/productos"""
+    try:
+        import os
+        from flask import send_from_directory
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        productos_dir = os.path.join(base_dir, 'static', 'productos')
+        return send_from_directory(productos_dir, filename)
+    except Exception as e:
+        app.logger.error(f"Error sirviendo imagen {filename}: {e}")
+        # Redirigir a imagen por defecto si hay error
+        from flask import redirect
+        return redirect('/static/images/product-placeholder.svg')
+
+
+@app.route('/debug-imagenes')
+def debug_imagenes():
+    if not session.get('user_rol') == 'admin':
+        return "Acceso denegado", 403
+    
+    try:
+        productos = Producto.query.limit(10).all()
+        html = "<h2>Debug: URLs de imágenes</h2><table border='1'>"
+        html += "<tr><th>Producto</th><th>imagen_url en BD</th><th>Test imagen</th></tr>"
+        
+        for producto in productos:
+            html += f"<tr><td>{producto.nombre}</td><td>{producto.imagen_url}</td>"
+            if producto.imagen_url:
+                html += f"<td><img src='{producto.imagen_url}' width='100' onerror=\"this.src='/static/images/product-placeholder.svg'\"></td>"
+            else:
+                html += "<td>Sin imagen</td>"
+            html += "</tr>"
+        
+        html += "</table>"
+        return html
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
 @app.route('/debug-estructura-tabla')
 def debug_estructura_tabla():
     if not session.get('user_rol') == 'admin':

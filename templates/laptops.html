@@ -7,7 +7,7 @@
 <div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:32px; justify-items:center; align-items:start; width:100%; margin:0 auto;">
     {% for laptop in laptops %}
     <a href="{{ url_for('producto_detalle', producto_id=laptop.id_producto) }}" class="product-card" style="text-decoration:none; color:inherit;">
-        <img src="{{ laptop.imagen_url }}" alt="{{ laptop.nombre }}">
+        <img src="{{ laptop.imagen_url or '/static/images/product-placeholder.svg' }}" alt="{{ laptop.nombre }}" onerror="this.src='/static/images/product-placeholder.svg'">
         <div class="product-price">${{ laptop.precio_unitario }}</div>
         <div class="product-title">{{ laptop.nombre }}</div>
         <div class="product-description">{{ laptop.descripcion }}</div>
