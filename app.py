@@ -662,6 +662,52 @@ def test_db():
         return f'❌ Error de conexión a la base de datos: {e}<br><br>Configuración:<br>DB_HOST: {DB_HOST}<br>DB_NAME: {DB_NAME}<br>DB_USER: {DB_USER}'
 
 
+@app.route('/init-data')
+def init_data():
+    """Inicializar datos de ejemplo en la base de datos"""
+    try:
+        # Verificar si ya hay datos
+        if Categoria.query.count() > 0:
+            return "❌ La base de datos ya tiene categorías. No se insertan datos para evitar duplicados."
+        
+        # Insertar categorías
+        categorias = [
+            Categoria(nombre='Torres', descripcion='Computadoras de escritorio completas', estado='activo'),
+            Categoria(nombre='Laptops', descripcion='Computadoras portátiles y ultrabooks', estado='activo'),
+            Categoria(nombre='Procesadores', descripcion='CPUs Intel y AMD', estado='activo'),
+            Categoria(nombre='Tarjetas Gráficas', descripcion='GPUs para gaming y trabajo profesional', estado='activo'),
+            Categoria(nombre='Periféricos', descripcion='Teclados, ratones, monitores y más', estado='activo'),
+            Categoria(nombre='Memorias', descripcion='RAM DDR4 y DDR5', estado='activo'),
+            Categoria(nombre='Fuentes', descripcion='Fuentes de poder certificadas', estado='activo'),
+            Categoria(nombre='Juegos', descripcion='Videojuegos para PC', estado='activo')
+        ]
+        
+        for cat in categorias:
+            db.session.add(cat)
+        db.session.commit()
+        
+        # Insertar productos de ejemplo
+        productos = [
+            Producto(nombre='PC Gamer RTX 4060', descripcion_detallada='PC completa para gaming con RTX 4060, Intel i5-12400F, 16GB RAM, SSD 500GB', precio_unitario=2500000.00, cantidad_stock=5, stock_minimo=1, stock_maximo=20, imagen_url='/static/productos/pc_gamer.jpg', id_categoria=1, estado='activo', unidad='unidad'),
+            Producto(nombre='Laptop Lenovo ThinkPad', descripcion_detallada='Laptop empresarial Intel i7, 16GB RAM, SSD 512GB', precio_unitario=3200000.00, cantidad_stock=3, stock_minimo=1, stock_maximo=15, imagen_url='/static/productos/laptop_lenovo.jpg', id_categoria=2, estado='activo', unidad='unidad'),
+            Producto(nombre='Procesador Intel i7-13700K', descripcion_detallada='CPU de alto rendimiento para gaming y trabajo', precio_unitario=1800000.00, cantidad_stock=8, stock_minimo=2, stock_maximo=25, imagen_url='/static/productos/intel_i7.jpg', id_categoria=3, estado='activo', unidad='unidad'),
+            Producto(nombre='RTX 4070 Super', descripcion_detallada='Tarjeta gráfica para gaming 4K y ray tracing', precio_unitario=2800000.00, cantidad_stock=4, stock_minimo=1, stock_maximo=12, imagen_url='/static/productos/rtx_4070.jpg', id_categoria=4, estado='activo', unidad='unidad'),
+            Producto(nombre='Teclado Mecánico RGB', descripcion_detallada='Teclado gaming con switches Cherry MX', precio_unitario=450000.00, cantidad_stock=15, stock_minimo=5, stock_maximo=50, imagen_url='/static/productos/teclado_rgb.jpg', id_categoria=5, estado='activo', unidad='unidad'),
+            Producto(nombre='RAM 32GB DDR4', descripcion_detallada='Kit de memoria RAM 32GB 3200MHz', precio_unitario=850000.00, cantidad_stock=10, stock_minimo=3, stock_maximo=30, imagen_url='/static/productos/ram_32gb.jpg', id_categoria=6, estado='activo', unidad='unidad'),
+            Producto(nombre='Fuente 850W 80+ Gold', descripcion_detallada='Fuente modular certificada 80+ Gold', precio_unitario=650000.00, cantidad_stock=6, stock_minimo=2, stock_maximo=20, imagen_url='/static/productos/fuente_850w.jpg', id_categoria=7, estado='activo', unidad='unidad'),
+            Producto(nombre='Cyberpunk 2077', descripcion_detallada='Juego de rol futurista para PC', precio_unitario=180000.00, cantidad_stock=20, stock_minimo=5, stock_maximo=100, imagen_url='/static/productos/cyberpunk.jpg', id_categoria=8, estado='activo', unidad='unidad')
+        ]
+        
+        for prod in productos:
+            db.session.add(prod)
+        db.session.commit()
+        
+        return f"✅ Datos iniciales insertados correctamente:<br>- {len(categorias)} categorías<br>- {len(productos)} productos<br><br><a href='/'>Ver tienda</a> | <a href='/test-db'>Verificar BD</a>"
+        
+    except Exception as e:
+        return f"❌ Error al insertar datos: {e}"
+
+
 @app.route('/admin/usuarios/cambiar-rol', methods=['POST'])
 def cambiar_rol_usuario():
     if not session.get('user_rol') == 'admin':
