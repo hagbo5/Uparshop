@@ -15,19 +15,21 @@ load_dotenv()
 # Inicializar la aplicación Flask
 app = Flask(__name__)
 
-# Configuración de la base de datos (ajusta .env o los valores por defecto)
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASS = os.getenv('DB_PASS', '')
-DB_HOST = os.getenv('DB_HOST', 'localhost')
+# Configuración de la base de datos con DigitalOcean
+DB_USER = os.getenv('DB_USER', 'doadmin')
+DB_PASS = os.getenv('DB_PASS', 'AVNS_vpW0rR3lfKCIZfRnYqt')
+DB_HOST = os.getenv('DB_HOST', 'uparshop-bd-do-user-26734553-0.k.db.ondigitalocean.com')
+DB_PORT = os.getenv('DB_PORT', '25060')
 DB_NAME = os.getenv('DB_NAME', 'uparshop_bd')
 
-# URI para MySQL usando PyMySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+# URI para MySQL usando PyMySQL (con puerto)
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configurar clave secreta para sesiones
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
-
 
 # Inicializar extensión con la app
 db.init_app(app)
@@ -958,6 +960,7 @@ def autocomplete_admin_usuarios():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
