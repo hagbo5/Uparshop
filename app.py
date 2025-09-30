@@ -1072,99 +1072,116 @@ def editar_producto(producto_id):
     if not session.get('user_rol') == 'admin':
         flash('Acceso restringido solo para administradores.', 'error')
         return redirect(url_for('home'))
-    producto = Producto.query.get_or_404(producto_id)
-    if request.method == 'GET':
-        categorias = Categoria.query.all()
-        return render_template('editar_producto.html', producto=producto, categorias=categorias)
-    # POST: procesar edición
-    nombre = request.form.get('nombre')
-    descripcion_detallada = request.form.get('descripcion_detallada')
-    precio_unitario = request.form.get('precio_unitario')
-    cantidad_stock = request.form.get('cantidad_stock')
-    stock_minimo = request.form.get('stock_minimo')
-    stock_maximo = request.form.get('stock_maximo')
-    id_categoria = request.form.get('id_categoria')
-    estado = request.form.get('estado')
-    garantia_fecha = request.form.get('garantia_fecha')
-    unidad = request.form.get('unidad')
+    
+    try:
+        producto = Producto.query.get_or_404(producto_id)
+        if request.method == 'GET':
+            categorias = Categoria.query.all()
+            return render_template('editar_producto.html', producto=producto, categorias=categorias)
+        
+        # POST: procesar edición
+        nombre = request.form.get('nombre')
+        descripcion_detallada = request.form.get('descripcion_detallada')
+        precio_unitario = request.form.get('precio_unitario')
+        cantidad_stock = request.form.get('cantidad_stock')
+        stock_minimo = request.form.get('stock_minimo')
+        stock_maximo = request.form.get('stock_maximo')
+        id_categoria = request.form.get('id_categoria')
+        estado = request.form.get('estado')
+        garantia_fecha = request.form.get('garantia_fecha')
+        unidad = request.form.get('unidad')
 
-    # Manejo de imagen subida y eliminación opcional
-    imagen_file = request.files.get('imagen')
-    eliminar_imagen_flag = request.form.get('eliminar_imagen')
-    import os
-    from werkzeug.utils import secure_filename
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    productos_dir = os.path.join(base_dir, 'static', 'images', 'productos')
-    if not os.path.exists(productos_dir):
-        os.makedirs(productos_dir)
+        # Procesar fecha de garantía - convertir cadena vacía a None
+        if garantia_fecha:
+            try:
+                from datetime import datetime
+                garantia_fecha = datetime.strptime(garantia_fecha, '%Y-%m-%d').date()
+            except ValueError:
+                garantia_fecha = None
+        else:
+            garantia_fecha = None
 
-    # Si el admin solicita eliminar la imagen actual
-    if eliminar_imagen_flag and producto.imagen_url:
+        # Procesar unidad - mapeo a entero como en registrar_producto
+        unidad_map = {
+            'unidad': 1,
+            'pieza': 1, 
+            'caja': 2,
+            'paquete': 3,
+            'set': 4,
+            'kit': 5
+        }
+        
+        if not unidad or unidad.strip() == '':
+            unidad = 1  # Por defecto: unidad
+        elif unidad.isdigit():
+            unidad = int(unidad)
+        elif unidad.lower() in unidad_map:
+            unidad = unidad_map[unidad.lower()]
+        else:
+            unidad = 1  # Por defecto si no reconoce el valor
+
+        # Procesar valores numéricos y asignar valores por defecto seguros
         try:
-            rel = producto.imagen_url.lstrip('/')
-            if rel.startswith('static/'):
-                rel = rel.split('static/', 1)[1]
-            old_path = os.path.join(base_dir, 'static', rel)
-            if os.path.isfile(old_path):
-                os.remove(old_path)
-        except Exception as e:
-            app.logger.debug(f"No se pudo eliminar imagen anterior: {e}")
-        producto.imagen_url = None
-
-    if imagen_file and imagen_file.filename:
-        # Validación básica: extensiones y tamaño
-        allowed_ext = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
-        filename = secure_filename(imagen_file.filename)
-        base, ext = os.path.splitext(filename)
-        if ext.lower() not in allowed_ext:
-            flash('Extensión de imagen no permitida.', 'error')
-            return redirect(url_for('editar_producto', producto_id=producto_id))
-        imagen_file.seek(0, os.SEEK_END)
-        size = imagen_file.tell()
-        imagen_file.seek(0)
-        max_size = 4 * 1024 * 1024  # 4 MB
-        if size > max_size:
-            flash('La imagen supera el tamaño máximo permitido (4MB).', 'error')
+            precio_unitario = float(precio_unitario) if precio_unitario else 0.0
+            cantidad_stock = int(cantidad_stock) if cantidad_stock else 0
+            stock_minimo = int(stock_minimo) if stock_minimo else 0
+            stock_maximo = int(stock_maximo) if stock_maximo else 1000
+            id_categoria = int(id_categoria) if id_categoria else None
+        except (ValueError, TypeError):
+            flash('Error en los valores numéricos. Verifica que los campos de precio y cantidades tengan valores válidos.', 'error')
             return redirect(url_for('editar_producto', producto_id=producto_id))
 
-        # Guardar archivo único
-        i = 1
-        save_path = os.path.join(productos_dir, filename)
-        while os.path.exists(save_path):
-            filename = f"{base}_{i}{ext}"
+        # Manejo de imagen subida (consistente con registrar_producto)
+        imagen_file = request.files.get('imagen')
+        eliminar_imagen_flag = request.form.get('eliminar_imagen')
+        
+        if eliminar_imagen_flag:
+            producto.imagen_url = None
+
+        if imagen_file and imagen_file.filename:
+            import os
+            from werkzeug.utils import secure_filename
+            # Usar la misma ruta que registrar_producto: static/productos
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            productos_dir = os.path.join(base_dir, 'static', 'productos')
+            if not os.path.exists(productos_dir):
+                os.makedirs(productos_dir)
+            filename = secure_filename(imagen_file.filename)
+            # Evitar sobrescribir archivos
+            base, ext = os.path.splitext(filename)
+            i = 1
             save_path = os.path.join(productos_dir, filename)
-            i += 1
-        imagen_file.save(save_path)
-        producto.imagen_url = f"/static/images/productos/{filename}"
+            while os.path.exists(save_path):
+                filename = f"{base}_{i}{ext}"
+                save_path = os.path.join(productos_dir, filename)
+                i += 1
+            imagen_file.save(save_path)
+            producto.imagen_url = f"/static/productos/{filename}"
 
-        # Generar miniatura con Pillow
-        try:
-            from PIL import Image
-            thumbs_dir = os.path.join(productos_dir, 'thumbs')
-            if not os.path.exists(thumbs_dir):
-                os.makedirs(thumbs_dir)
-            thumb_path = os.path.join(thumbs_dir, filename)
-            with Image.open(save_path) as img_obj:
-                img_obj.thumbnail((300, 300))
-                img_obj.convert('RGB').save(thumb_path, 'JPEG', quality=85)
-            # Guardar ruta relativa si se quiere usar
-            producto.imagen_thumb = f"/static/images/productos/thumbs/{filename}"
-        except Exception as e:
-            app.logger.debug(f"Error creando miniatura: {e}")
+        if not nombre or not precio_unitario or not cantidad_stock or not id_categoria or not estado:
+            flash('Todos los campos obligatorios deben ser completados.', 'error')
+            return redirect(url_for('editar_producto', producto_id=producto_id))
 
-    producto.nombre = nombre
-    producto.descripcion_detallada = descripcion_detallada
-    producto.precio_unitario = precio_unitario
-    producto.cantidad_stock = cantidad_stock
-    producto.stock_minimo = stock_minimo
-    producto.stock_maximo = stock_maximo
-    producto.id_categoria = id_categoria
-    producto.estado = estado
-    producto.garantia_fecha = garantia_fecha
-    producto.unidad = unidad
-    db.session.commit()
-    flash('Producto actualizado correctamente.', 'success')
-    return redirect(url_for('admin_productos'))
+        # Actualizar el producto
+        producto.nombre = nombre
+        producto.descripcion_detallada = descripcion_detallada
+        producto.precio_unitario = precio_unitario
+        producto.cantidad_stock = cantidad_stock
+        producto.stock_minimo = stock_minimo
+        producto.stock_maximo = stock_maximo
+        producto.id_categoria = id_categoria
+        producto.estado = estado
+        producto.garantia_fecha = garantia_fecha
+        producto.unidad = unidad
+        
+        db.session.commit()
+        flash('Producto actualizado correctamente.', 'success')
+        return redirect(url_for('admin_productos'))
+    
+    except Exception as e:
+        flash(f'Error al editar producto: {str(e)}', 'error')
+        app.logger.error(f"Error en editar_producto: {e}")
+        return redirect(url_for('admin_productos'))
 
 
 # --- ELIMINAR PRODUCTO (ADMIN) ---
