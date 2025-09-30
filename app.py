@@ -749,6 +749,36 @@ def init_data():
         return f"❌ Error al insertar datos: {e}"
 
 
+@app.route('/debug-estructura-tabla')
+def debug_estructura_tabla():
+    if not session.get('user_rol') == 'admin':
+        return "Acceso denegado", 403
+    
+    try:
+        # Obtener información de la estructura de la tabla productos
+        result = db.session.execute(text("DESCRIBE productos"))
+        columnas = []
+        for row in result:
+            columnas.append({
+                'campo': row[0],
+                'tipo': row[1], 
+                'nulo': row[2],
+                'clave': row[3],
+                'default': row[4],
+                'extra': row[5]
+            })
+        
+        html = "<h2>Estructura de la tabla productos</h2><table border='1'>"
+        html += "<tr><th>Campo</th><th>Tipo</th><th>Nulo</th><th>Clave</th><th>Default</th><th>Extra</th></tr>"
+        for col in columnas:
+            html += f"<tr><td>{col['campo']}</td><td>{col['tipo']}</td><td>{col['nulo']}</td><td>{col['clave']}</td><td>{col['default']}</td><td>{col['extra']}</td></tr>"
+        html += "</table>"
+        return html
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
 @app.route('/debug-categorias')
 def debug_categorias():
     """Mostrar todas las categorías que existen en la BD"""
@@ -911,9 +941,25 @@ def registrar_producto():
         else:
             garantia_fecha = None
 
-        # Procesar unidad - asignar valor por defecto si está vacía
+        # Procesar unidad - convertir a entero (la BD parece esperar un número)
+        # Mapeo de strings a números para unidad
+        unidad_map = {
+            'unidad': 1,
+            'pieza': 1, 
+            'caja': 2,
+            'paquete': 3,
+            'set': 4,
+            'kit': 5
+        }
+        
         if not unidad or unidad.strip() == '':
-            unidad = 'unidad'
+            unidad = 1  # Por defecto: unidad
+        elif unidad.isdigit():
+            unidad = int(unidad)
+        elif unidad.lower() in unidad_map:
+            unidad = unidad_map[unidad.lower()]
+        else:
+            unidad = 1  # Por defecto si no reconoce el valor
 
         # Procesar valores numéricos y asignar valores por defecto seguros
         try:
