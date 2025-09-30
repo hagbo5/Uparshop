@@ -29,7 +29,7 @@ class Producto(db.Model):
     id_categoria = db.Column(db.Integer, db.ForeignKey('categorias.id_categoria'))
     estado = db.Column(db.String(20), default='activo')
     garantia_fecha = db.Column(db.Date)
-    unidad = db.Column(db.Integer)
+    unidad = db.Column(db.String(50), default='unidad')
     categoria = db.relationship('Categoria', backref='productos')
 
     def __repr__(self):
