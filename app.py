@@ -708,6 +708,22 @@ def init_data():
         return f"❌ Error al insertar datos: {e}"
 
 
+@app.route('/test-simple')
+def test_simple():
+    """Ruta súper simple para verificar que la app funciona básicamente"""
+    return "✅ Aplicación funcionando correctamente - Sin consultas a BD"
+
+
+@app.route('/test-home')
+def test_home():
+    """Test específico de la lógica de home sin template"""
+    try:
+        productos_destacados = Producto.query.order_by(Producto.id_producto.desc()).limit(8).all()
+        return f"✅ Consulta exitosa - Encontrados {len(productos_destacados)} productos destacados"
+    except Exception as e:
+        return f"❌ Error en consulta: {e}"
+
+
 @app.route('/admin/usuarios/cambiar-rol', methods=['POST'])
 def cambiar_rol_usuario():
     if not session.get('user_rol') == 'admin':
