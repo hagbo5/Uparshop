@@ -11,8 +11,8 @@ def home():
         return render_template('index.html', productos_destacados=productos_destacados)
     except Exception as e:
         current_app.logger.exception(f"Error en home: {e}")
-        # Evitar recursión si hay un problema de plantillas: devolver HTML básico
-        return "<h1>Error en Home</h1><p>Ocurrió un error al cargar la página de inicio. Revisa los logs para más detalles.</p>", 500
+        # Degradar amablemente: mostrar home sin productos
+        return render_template('index.html', productos_destacados=[], db_error=True)
 
 
 @main_bp.route('/lista-precios')

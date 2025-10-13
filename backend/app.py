@@ -195,6 +195,25 @@ def test_db():
         return f'❌ Error de conexión a la base de datos: {e}<br><br>Configuración:<br>DB_HOST: {DB_HOST}<br>DB_NAME: {DB_NAME}<br>DB_USER: {DB_USER}'
 
 
+@app.route('/__db_health')
+def __db_health():
+    try:
+        ok = db.session.execute(text('SELECT 1')).scalar() == 1
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tablas = inspector.get_table_names()
+        return jsonify({
+            'ok': ok,
+            'tables': tablas,
+            'has_categorias': 'categorias' in tablas,
+            'has_productos': 'productos' in tablas,
+            'has_usuarios': 'usuarios' in tablas,
+            'has_contact_messages': 'contact_messages' in tablas
+        })
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
 @app.route('/debug-imagenes')
 def debug_imagenes():
     if not session.get('user_rol') == 'admin':
