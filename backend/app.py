@@ -75,7 +75,15 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True
 }
 
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'uparshop-secret-key-2024-secure-flask-sessions')
+# SECRET_KEY: asegurar valor no vacío para habilitar sesiones/flash
+_secret = os.getenv('SECRET_KEY')
+if not _secret or not _secret.strip():
+    try:
+        app.logger.warning("SECRET_KEY no configurado o vacío; usando clave por defecto (establece SECRET_KEY en el entorno de producción)")
+    except Exception:
+        pass
+    _secret = 'uparshop-secret-key-2024-secure-flask-sessions'
+app.config['SECRET_KEY'] = _secret
 
 db.init_app(app)
 
