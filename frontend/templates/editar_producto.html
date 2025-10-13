@@ -1,0 +1,53 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+<div class="form-container">
+    <h2>Editar Producto</h2>
+    <form method="post" enctype="multipart/form-data">
+        <label>Nombre:</label>
+        <input type="text" name="nombre" value="{{ producto.nombre }}" required>
+        <label>Descripción detallada:</label>
+        <textarea name="descripcion_detallada">{{ producto.descripcion_detallada }}</textarea>
+        <label>Precio unitario:</label>
+        <input type="number" name="precio_unitario" value="{{ producto.precio_unitario }}" step="0.01" required>
+        <label>Cantidad en stock:</label>
+        <input type="number" name="cantidad_stock" value="{{ producto.cantidad_stock }}" required>
+        <label>Stock mínimo:</label>
+        <input type="number" name="stock_minimo" value="{{ producto.stock_minimo }}">
+        <label>Stock máximo:</label>
+        <input type="number" name="stock_maximo" value="{{ producto.stock_maximo }}">
+        <label>Categoría:</label>
+        <select name="id_categoria" required>
+            {% for cat in categorias %}
+            <option value="{{ cat.id_categoria }}" {% if producto.id_categoria == cat.id_categoria %}selected{% endif %}>{{ cat.nombre }}</option>
+            {% endfor %}
+        </select>
+        <label>Estado:</label>
+        <select name="estado" required>
+            <option value="activo" {% if producto.estado == 'activo' %}selected{% endif %}>Activo</option>
+            <option value="inactivo" {% if producto.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+        </select>
+        <label>Garantía (fecha):</label>
+        <input type="date" name="garantia_fecha" value="{{ producto.garantia_fecha|default('', true) }}">
+        <label>Unidad:</label>
+        <input type="text" name="unidad" value="{{ producto.unidad }}">
+        <label>Imagen actual:</label>
+        {% if producto.imagen_thumb %}
+            <img src="{{ producto.imagen_thumb }}" alt="Imagen actual" style="max-width:120px; display:block; margin-bottom:8px;">
+            <div style="margin-bottom:8px;">
+                <label><input type="checkbox" name="eliminar_imagen" value="1"> Eliminar imagen actual</label>
+            </div>
+        {% elif producto.imagen_url %}
+            <img src="{{ producto.imagen_url }}" alt="Imagen actual" style="max-width:120px; display:block; margin-bottom:8px;">
+            <div style="margin-bottom:8px;">
+                <label><input type="checkbox" name="eliminar_imagen" value="1"> Eliminar imagen actual</label>
+            </div>
+        {% else %}
+            <img src="{{ url_for('static', filename='images/product-placeholder.svg') }}" alt="Sin imagen" style="max-width:120px; display:block; margin-bottom:8px;">
+        {% endif %}
+        <label>Nueva imagen (opcional):</label>
+        <input type="file" name="imagen" accept="image/*">
+        <button type="submit" class="btn">Guardar cambios</button>
+    <a href="{{ url_for('admin.admin_productos') }}" class="btn" style="background:#888;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
