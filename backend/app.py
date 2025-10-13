@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort, current_app
+from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 try:
     # when running from backend/ as the app root
@@ -142,6 +143,9 @@ def inject_cart_count():
 # Global error handler to capture stacktraces in logs
 @app.errorhandler(Exception)
 def _handle_exception(e):
+    # Don't hijack standard HTTP exceptions (404, 400, etc.)
+    if isinstance(e, HTTPException):
+        return e
     try:
         app.logger.exception(f"Unhandled exception: {e}")
     finally:
