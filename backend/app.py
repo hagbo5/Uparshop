@@ -113,6 +113,21 @@ def inject_admin_counts():
     return {'admin_counts': None}
 
 
+@app.context_processor
+def inject_cart_count():
+    try:
+        carrito = session.get('carrito', {}) or {}
+        total = 0
+        for v in carrito.values():
+            try:
+                total += int(v)
+            except Exception:
+                pass
+        return {'cart_count': total}
+    except Exception:
+        return {'cart_count': 0}
+
+
 # ----------------------
 # Helpers
 # ----------------------
