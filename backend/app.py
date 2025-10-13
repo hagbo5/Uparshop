@@ -75,19 +75,19 @@ try:
     from controllers.auth_controller import auth_bp
     app.register_blueprint(auth_bp)
 except Exception as e:
-    app.logger.debug(f"No se pudo registrar controllers.auth: {e}")
+    app.logger.warning(f"No se pudo registrar controllers.auth: {e}")
 
 try:
     from routes.admin import admin_bp
     app.register_blueprint(admin_bp)
 except Exception as e:
-    app.logger.debug(f"No se pudo registrar controllers.admin: {e}")
+    app.logger.warning(f"No se pudo registrar controllers.admin: {e}")
 
 try:
     from routes.main import main_bp
     app.register_blueprint(main_bp)
 except Exception as e:
-    app.logger.debug(f"No se pudo registrar routes.main: {e}")
+    app.logger.warning(f"No se pudo registrar routes.main: {e}")
 
 # Crear tablas faltantes (solo crea las que no existen)
 with app.app_context():
@@ -234,3 +234,19 @@ if __name__ == "__main__":
 
 # Confirmar que el módulo se carga correctamente para gunicorn
 print("✅ Módulo app.py cargado correctamente - Listo para gunicorn")
+
+# Utilidades de depuración mínimas
+@app.route('/__ping')
+def __ping():
+    return 'pong'
+
+@app.route('/__routes')
+def __routes():
+    try:
+        lines = []
+        for rule in app.url_map.iter_rules():
+            methods = ','.join(sorted([m for m in rule.methods if m not in ('HEAD','OPTIONS')]))
+            lines.append(f"{rule.endpoint} -> {rule.rule} [{methods}]")
+        return '<br>'.join(sorted(lines))
+    except Exception as e:
+        return f'error: {e}', 500
