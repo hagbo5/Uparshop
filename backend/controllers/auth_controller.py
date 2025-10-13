@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from werkzeug.security import check_password_hash
 from models.models import User, db
 
 auth_bp = Blueprint('auth', __name__)
@@ -19,8 +20,8 @@ def login():
             if user.estado != 'activo':
                 flash('Tu cuenta se encuentra inactiva. Por favor comunícate con soporte técnico.', 'error')
                 return redirect(url_for('auth.login'))
-            # Comparación en texto plano por ahora; pendiente migrar a hash seguro
-            if user.contrasena == password:
+            # Soportar contraseñas en texto plano y con hash de werkzeug
+            if user.contrasena == password or check_password_hash(str(user.contrasena), password):
                 session['user_id'] = user.id_usuario
                 session['user_email'] = user.correo
                 session['user_rol'] = user.rol
