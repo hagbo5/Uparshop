@@ -165,7 +165,6 @@ def init_data():
             Categoria(nombre='Juegos', descripcion='Videojuegos para PC', estado='activo')
         ]
         for cat in categorias:
-            from models.models import db
             db.session.add(cat)
         db.session.commit()
         productos = [
@@ -178,10 +177,9 @@ def init_data():
             Producto(nombre='Fuente 850W 80+ Gold', descripcion_detallada='Fuente modular certificada 80+ Gold', precio_unitario=650000.00, cantidad_stock=6, stock_minimo=2, stock_maximo=20, imagen_url='/static/productos/fuente_850w.jpg', id_categoria=7, estado='activo'),
             Producto(nombre='Cyberpunk 2077', descripcion_detallada='Juego de rol futurista para PC', precio_unitario=180000.00, cantidad_stock=20, stock_minimo=5, stock_maximo=100, imagen_url='/static/productos/cyberpunk.jpg', id_categoria=8, estado='activo')
         ]
-        from models.models import db as _db
         for prod in productos:
-            _db.session.add(prod)
-        _db.session.commit()
+            db.session.add(prod)
+        db.session.commit()
         return f"✅ Datos iniciales insertados correctamente:<br>- {len(categorias)} categorías<br>- {len(productos)} productos<br><br><a href='/'>Ver tienda</a> | <a href='/test-db'>Verificar BD</a>"
     except Exception as e:
         return f"❌ Error al insertar datos: {e}"
@@ -280,7 +278,6 @@ def contactanos():
         return redirect(url_for('main.contactanos'))
     try:
         cm = ContactMessage(nombre=nombre, correo=correo, asunto=asunto, mensaje=mensaje, leido=False)
-        from models.models import db
         db.session.add(cm)
         db.session.commit()
         flash('Mensaje enviado. Gracias por contactarnos.', 'success')

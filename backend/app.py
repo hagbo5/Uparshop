@@ -1,23 +1,5 @@
-
 import os
-from flask import session, redirect, url_for, request, flash
-from flask import abort
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from dotenv import load_dotenv
-from models.models import db, Producto, Categoria, User, ContactMessage
-from datetime import datetime, timedelta
-from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import text
-
-# Cargar variables de entorno desde un archivo .env (opcional)
-load_dotenv()
-
-# Forzar rebuild limpio - Fix definitivo para error de módulo Uparshop
-print("🚀 Iniciando aplicación Uparshop - Todos los imports corregidos")
-
-import os
-from flask import session, redirect, url_for, request, flash, abort
-from flask import Flask, render_template, jsonify, current_app
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort, current_app
 from dotenv import load_dotenv
 from models.models import db, Producto, Categoria, User, ContactMessage
 from datetime import datetime, timedelta
