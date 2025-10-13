@@ -6,13 +6,14 @@
     <title>{% block title %}Panel de Administración{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}" />
 </head>
 <body>
     <div class="admin-layout">
-        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="adminSidebar" style="position:fixed; top:14px; left:14px; z-index:120; background:#243447; border:1px solid #2f3d4a; color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; display:none; gap:6px; align-items:center;">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="adminSidebar">
             <i class="fas fa-bars"></i>
         </button>
-        <div id="sidebarOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:90;"></div>
+        <div id="sidebarOverlay"></div>
         <aside class="admin-sidebar" id="adminSidebar">
             <h3>Panel Admin</h3>
             <ul class="admin-menu">
