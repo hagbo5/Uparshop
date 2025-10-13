@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from models.models import User, db
 
 auth_bp = Blueprint('auth', __name__)
@@ -8,24 +8,33 @@ auth_bp = Blueprint('auth', __name__)
 def login():
     if request.method == 'GET':
         return render_template('login.html')
-    email = request.form.get('email')
-    password = request.form.get('password')
-    if not email or not password:
-        flash('Correo y contraseña son requeridos.', 'error')
-        return redirect(url_for('auth.login'))
-    user = User.query.filter_by(correo=email).first()
-    if user:
-        if user.estado != 'activo':
-            flash('Tu cuenta se encuentra inactiva. Por favor comunícate con soporte técnico.', 'error')
+    try:
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if not email or not password:
+            flash('Correo y contraseña son requeridos.', 'error')
             return redirect(url_for('auth.login'))
-        if user.contrasena == password:
-            session['user_id'] = user.id_usuario
-            session['user_email'] = user.correo
-            session['user_rol'] = user.rol
-            flash('Sesión iniciada.', 'success')
-            return redirect(url_for('main.home'))
-    flash('Credenciales inválidas.', 'error')
-    return redirect(url_for('auth.login'))
+        user = User.query.filter_by(correo=email).first()
+        if user:
+            if user.estado != 'activo':
+                flash('Tu cuenta se encuentra inactiva. Por favor comunícate con soporte técnico.', 'error')
+                return redirect(url_for('auth.login'))
+            # Comparación en texto plano por ahora; pendiente migrar a hash seguro
+            if user.contrasena == password:
+                session['user_id'] = user.id_usuario
+                session['user_email'] = user.correo
+                session['user_rol'] = user.rol
+                flash('Sesión iniciada.', 'success')
+                return redirect(url_for('main.home'))
+        flash('Credenciales inválidas.', 'error')
+        return redirect(url_for('auth.login'))
+    except Exception as e:
+        # Log detallado para diagnosticar en DO
+        try:
+            current_app.logger.exception(f"Error en login POST: {e}")
+        finally:
+            flash('Error interno al iniciar sesión. Intenta de nuevo en unos segundos.', 'error')
+            return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/logout')
