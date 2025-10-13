@@ -434,7 +434,7 @@ table.admin-table tbody tr.message-unread td { border-top:1px solid #2e3d54; }
 .mensaje-modal-body::-webkit-scrollbar-track { background:#1e2737; border-radius:10px; }
 .mensaje-modal-body::-webkit-scrollbar-thumb { background:#35475f; border-radius:10px; }
 .mensaje-modal-body::-webkit-scrollbar-thumb:hover { background:#406083; }
-@media (max-width:680px){
+@media (max-width:900px){
     /* mobile-specific: center a single card view and avoid changing global desktop behavior */
     .carousel-card .img-wrap, .carousel-card img {
         min-width: 170px;
