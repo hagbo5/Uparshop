@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort, current_app
 from dotenv import load_dotenv
 try:
@@ -50,6 +51,10 @@ STATIC_DIR = first_existing([
 ], fallback=os.path.join(BASE_DIR, "../frontend/static"), ensure_dir=False)
 
 app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATE_DIR)
+
+# Logging configuration
+logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
 
 # Configuración de la base de datos (valores por defecto si no están en env)
 DB_USER = os.getenv('DB_USER') or 'doadmin'
@@ -132,6 +137,15 @@ def inject_cart_count():
         return {'cart_count': total}
     except Exception:
         return {'cart_count': 0}
+
+
+# Global error handler to capture stacktraces in logs
+@app.errorhandler(Exception)
+def _handle_exception(e):
+    try:
+        app.logger.exception(f"Unhandled exception: {e}")
+    finally:
+        return "Internal Server Error", 500
 
 
 # ----------------------
