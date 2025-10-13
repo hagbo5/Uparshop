@@ -108,7 +108,7 @@ except Exception as e:
 # Test 7: Importar modelos actuales
 print("\n7️⃣ Probando modelos actuales...")
 try:
-    from models.models import User, Producto, Categoria, ContactMessage
+    from models import User, Producto, Categoria, ContactMessage
     print("✅ Modelos importados exitosamente")
     
     # Probar crear instancia de cada modelo (sin guardar)
