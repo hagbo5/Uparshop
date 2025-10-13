@@ -69,10 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getGap = () => parseInt(getComputedStyle(track).gap) || 24;
     const cardWidth = () => (cards[0] ? cards[0].getBoundingClientRect().width : 220);
+    // Named breakpoint to avoid magic numbers and keep JS consistent with CSS breakpoints
+    const MOBILE_BREAKPOINT = 900; // px - change here to match CSS media query if needed
     // step: default to cardWidth + gap, but on narrow screens use the visible track width to move one "page"
     const step = () => {
         try {
-                if (window.innerWidth <= 900) return track.clientWidth; // move the width of the visible area on phones/tablets
+                if (window.innerWidth <= MOBILE_BREAKPOINT) return track.clientWidth; // move the width of the visible area on phones/tablets
             return cardWidth() + getGap();
         } catch (e) { return 240 + getGap(); }
     };
