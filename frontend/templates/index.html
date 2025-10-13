@@ -69,12 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getGap = () => parseInt(getComputedStyle(track).gap) || 24;
     const cardWidth = () => (cards[0] ? cards[0].getBoundingClientRect().width : 220);
-    // Desktop breakpoint: screens wider than this are considered desktop, <= are mobile/tablet
-    const DESKTOP_BREAKPOINT = 900; // px - change here to match CSS media query if needed
+    // Mobile breakpoint: prefer a CSS custom property so CSS and JS share the same source of truth.
+    // If the CSS variable `--carousel-mobile-breakpoint` is not set, fall back to the default below.
+    const DEFAULT_MOBILE_BREAKPOINT = 900; // px
+    const MOBILE_BREAKPOINT = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--carousel-mobile-breakpoint')) || DEFAULT_MOBILE_BREAKPOINT;
     // step: default to cardWidth + gap, but on narrow screens use the visible track width to move one "page"
     const step = () => {
         try {
-                if (window.innerWidth <= DESKTOP_BREAKPOINT) return track.clientWidth; // move the width of the visible area on phones/tablets
+                if (window.innerWidth <= MOBILE_BREAKPOINT) return track.clientWidth; // move the width of the visible area on phones/tablets
             return cardWidth() + getGap();
         } catch (e) { return 240 + getGap(); }
     };

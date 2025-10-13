@@ -355,6 +355,7 @@
     max-width: 140px;
     max-height: 120px;
     display: block;
+}
 
 /* highlight unread admin messages */
 .message-unread { background: rgba(255,255,0,0.03); }
@@ -778,6 +779,10 @@ table.admin-table tbody tr.message-unread td { border-top:1px solid #2e3d54; }
     --border-color: #415a77;
     --accent-color: #43b581;
 }
+
+/* Make sizing predictable and prevent horizontal page scroll due to overflow */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
 
 body {
     font-family: 'Poppins', sans-serif;
@@ -1950,3 +1955,66 @@ body.full-screen .promo-banner { display: block; }
 @media (min-width: 901px) {
     .admin-sidebar { position: relative; transform:none !important; box-shadow:none; }
 }
+
+/* === Mobile overrides (consolidated) === */
+@media (max-width: 900px) {
+    /* make header stack nicely and reduce large paddings */
+    .header { flex-direction: column; gap: 8px; padding: 12px 12px; }
+    .logo { height: 70px; max-width: 150px; }
+    .search-bar { width: 100%; margin: 6px 0; order: 3; }
+
+    /* carousel: ensure one centered card and allow horizontal scroll + snap */
+    .carousel-container { padding: 0; }
+    .carousel-track {
+        padding-left: calc((100% - 80%) / 2) !important;
+        padding-right: calc((100% - 80%) / 2) !important;
+        overflow-x: auto;
+        gap: 12px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    .carousel-card { flex: 0 0 80% !important; max-width: 80% !important; min-width: 80% !important; }
+    .carousel-btn { display: none !important; }
+    .carousel-track { scroll-snap-type: x mandatory; }
+    /* ensure categories are visible and nicely sized on tablet/mobile */
+    .home-categories { padding: 0 12px; }
+    .category-list { gap: 12px; justify-content: center; }
+    .category-card { flex: 0 0 calc(33% - 12px); max-width: calc(33% - 12px); min-width: calc(33% - 12px); padding: 12px 14px; font-size: 1rem; }
+}
+
+@media (max-width: 600px) {
+    /* tighten sizes for very small screens */
+    .logo { height: 50px; }
+    .carousel-track {
+        padding-left: calc((100% - 88%) / 2) !important;
+        padding-right: calc((100% - 88%) / 2) !important;
+        gap: 10px !important;
+    }
+    .carousel-card { flex: 0 0 88% !important; max-width: 88% !important; min-width: 88% !important; }
+    .carousel-card .img-wrap, .carousel-card img { width: 120px !important; height: 60px !important; }
+
+    /* show sidebar on small screens as a full-width stacked section above products */
+    .sidebar { display: block !important; width: 100% !important; flex-basis: auto !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; padding: 10px 0 !important; }
+    .content-area { padding: 8px !important; gap: 8px !important; flex-direction: column !important; }
+
+    /* make navbar stack and reduce gaps */
+    .navbar { flex-direction: column; gap: 8px; padding: 8px 6px; }
+    /* ensure navbar is visible on mobile (sometimes overlapped by fixed sidebars) */
+    .navbar { display:flex !important; position: relative !important; z-index: 120 !important; background: var(--main-bg-color); }
+    /* mobile: two-column categories, then full width on very narrow screens */
+    .home-categories { padding: 0 10px; }
+    .category-list { gap: 10px; }
+    .category-card { flex: 0 0 calc(48% - 10px) !important; max-width: calc(48% - 10px) !important; min-width: calc(48% - 10px) !important; padding: 10px 12px; font-size: 0.98rem; }
+    /* ensure category blocks are visible */
+    .home-categories { display: block !important; }
+    .category-list { display:flex !important; flex-wrap:wrap !important; }
+    .category-card { display:flex !important; }
+}
+
+@media (max-width: 360px) {
+    .category-card { flex: 0 0 100% !important; max-width: 100% !important; min-width: 100% !important; }
+}
+
+/* Small utility: ensure images inside carousel do not cause overflow */
+.carousel-card img { max-width: 100%; height: auto; display: block; }
+
+/* end mobile overrides */

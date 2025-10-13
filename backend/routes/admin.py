@@ -3,7 +3,7 @@ from flask import (
 )
 import os
 from datetime import datetime, timedelta
-from models import db, Producto, Categoria, User, ContactMessage
+from models.models import db, Producto, Categoria, User, ContactMessage
 from sqlalchemy import text
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
