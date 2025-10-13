@@ -223,34 +223,7 @@ def debug_estructura_tabla():
         return f"Error: {str(e)}"
 
 
-@app.route('/debug-categorias')
-def debug_categorias():
-    try:
-        categorias = Categoria.query.all()
-        if not categorias:
-            return "❌ No hay categorías en la base de datos.<br><br><a href='/'>Volver al inicio</a>"
-        resultado = ["📋 Categorías existentes en la base de datos:<br><br>"]
-        for cat in categorias:
-            productos_count = Producto.query.filter_by(id_categoria=cat.id_categoria).count()
-            resultado.append(f"• ID: {cat.id_categoria} | Nombre: '{cat.nombre}' | Productos: {productos_count}")
-        resultado.append("<br><br><a href='/'>Volver al inicio</a>")
-        return "<br>".join(resultado)
-    except Exception as e:
-        return f"❌ Error al consultar categorías: {e}"
-
-
-@app.route('/test-simple')
-def test_simple():
-    return "✅ Aplicación funcionando correctamente - Sin consultas a BD"
-
-
-@app.route('/test-home')
-def test_home():
-    try:
-        productos_destacados = Producto.query.order_by(Producto.id_producto.desc()).limit(8).all()
-        return f"✅ Consulta exitosa - Encontrados {len(productos_destacados)} productos destacados"
-    except Exception as e:
-        return f"❌ Error en consulta: {e}"
+## Rutas duplicadas movidas a blueprint 'main' (ver backend/routes/main.py)
 
 
 # Permite ejecutar la aplicación directamente
