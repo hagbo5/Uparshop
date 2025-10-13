@@ -67,9 +67,12 @@ DB_NAME = os.getenv('DB_NAME') or 'uparshop_bd'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    # Enable TLS for PyMySQL; empty dict enables SSL without strict verification
     'connect_args': {
-        'ssl': {'ssl_mode': 'REQUIRED'}
-    }
+        'ssl': {}
+    },
+    # Avoid stale connections on DO
+    'pool_pre_ping': True
 }
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'uparshop-secret-key-2024-secure-flask-sessions')
@@ -95,13 +98,11 @@ try:
 except Exception as e:
     app.logger.warning(f"No se pudo registrar routes.main: {e}")
 
-# Crear tablas faltantes (solo crea las que no existen)
+# Crear tablas faltantes (idempotente; solo crea las que no existen)
 with app.app_context():
     try:
-        from sqlalchemy import inspect
-        inspector = inspect(db.engine)
-        if 'contact_messages' not in inspector.get_table_names():
-            db.create_all()
+        db.create_all()
+        app.logger.info("Verificación de tablas completada (create_all ejecutado)")
     except Exception as e:
         app.logger.warning(f"No se pudo verificar/crear tablas: {e}")
 
