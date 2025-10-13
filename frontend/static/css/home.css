@@ -1,0 +1,37 @@
+/* Home, carousel, categories, featured */
+.home-banner { text-align:center; margin:36px auto 24px auto; padding:24px 0 10px 0; background:linear-gradient(90deg,#22314a 60%, #43b581 100%); border-radius:16px; box-shadow:0 2px 16px rgba(67,181,129,0.08); }
+.home-logo { max-width:120px; margin-bottom:10px; }
+.home-banner h1 { color:#fff; font-size:2.1rem; font-weight:800; margin-bottom:6px; letter-spacing:1px; }
+.home-subtitle { color:#e0f7ef; font-size:1.15rem; margin-bottom:0; }
+.home-slider { max-width:900px; margin:24px auto 32px auto; border-radius:14px; overflow:hidden; box-shadow:0 2px 12px rgba(67,181,129,0.10); }
+.slider-img { width:100%; height:220px; object-fit:cover; display:block; }
+.home-categories { max-width:1100px; margin:0 auto 36px auto; padding:0 10px; }
+.home-categories h2 { color:var(--accent-color); font-size:1.3rem; font-weight:700; margin-bottom:16px; }
+.category-list { display:flex; flex-wrap:wrap; gap:18px; justify-content:center; }
+.category-card { background:#22314a; color:#fff; border-radius:10px; padding:18px 24px; font-size:1.08rem; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow:0 1px 6px rgba(0,0,0,0.08); transition: background .18s, transform .18s; }
+.category-card:hover { background:var(--accent-color); color:#fff; transform: translateY(-2px) scale(1.04); }
+.home-featured { max-width:1100px; margin:0 auto 40px auto; padding:0 10px; }
+.home-featured h2 { color:var(--accent-color); font-size:1.3rem; font-weight:700; margin-bottom:16px; text-align:center; }
+
+/* Testimonials */
+.home-testimonials { max-width:900px; margin:0 auto 36px auto; padding:0 10px; }
+.home-testimonials h2 { color:var(--accent-color); font-size:1.2rem; font-weight:700; margin-bottom:14px; text-align:center; }
+.testimonial-list { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; }
+.testimonial-card { background:#22314a; color:#fff; border-radius:10px; padding:18px 22px; font-size:1.01rem; box-shadow:0 1px 6px rgba(0,0,0,0.08); max-width:320px; }
+.testimonial-card span { display:block; color:#bfc9d1; font-size:.98em; margin-top:6px; }
+
+/* Carousel */
+.carousel-container { position:relative; max-width:1000px; margin:0 auto 36px auto; display:block; padding:0 16px; overflow:hidden; }
+.carousel-track { display:flex; gap:24px; overflow:hidden; scroll-behavior:smooth; width:100%; transition: transform .4s cubic-bezier(.4,1.2,.4,1); align-items:center; }
+.carousel-track { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.carousel-card { scroll-snap-align:center; background: var(--container-bg-color, #202a44); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.10); padding:18px 16px; min-width:180px; max-width:240px; flex:0 0 220px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px; text-align:center; transition: box-shadow .18s, transform .18s; }
+.carousel-card:hover { transform: translateY(-4px); }
+.carousel-card img { width:120px; height:90px; object-fit:contain; border-radius:8px; margin-bottom:10px; background:#fff; display:block; }
+.carousel-card .img-wrap { width:120px; height:90px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; background:#fff; margin-bottom:12px; }
+.carousel-card .img-wrap img { width:auto; max-width:100%; max-height:100%; height:auto; display:block; }
+.carousel-card h3 { font-size:1.08rem; font-weight:600; margin:8px 0 4px 0; color:var(--primary-text-color,#fff); }
+.carousel-card .featured-price { color:var(--accent-color); font-weight:700; margin-bottom:8px; }
+.carousel-card .btn { margin-top:6px; padding:7px 16px; font-size:.98rem; }
+.carousel-btn { background:#22314a; color:#fff; border:none; border-radius:50%; width:38px; height:38px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; position:absolute; top:50%; transform:translateY(-50%); z-index:4; }
+.carousel-btn.left { left:-8px; } .carousel-btn.right { right:-8px; }
+.carousel-btn:hover { background:var(--accent-color); }

@@ -28,6 +28,60 @@
 .badge-activo { background:#43b581; }
 .badge-inactivo { background:#e74c3c; }
 
+/* Admin mensajes toolbar & table enhancements */
+.message-unread { background: rgba(255,255,0,0.03); }
+table.admin-table { border:1px solid #253348; border-radius:14px; overflow:hidden; background:#1b2433; }
+table.admin-table thead th { background:#202c3f; padding:12px 14px; text-align:left; font-weight:600; font-size:0.85rem; letter-spacing:.5px; color:#b9c6d6; position:sticky; top:0; z-index:2; }
+table.admin-table tbody td { padding:11px 14px; font-size:0.9rem; border-top:1px solid #223045; vertical-align:top; }
+table.admin-table tbody tr:hover { background:#1f2b3e; }
+table.admin-table tbody tr.message-unread td { border-top:1px solid #2e3d54; }
+.badge-estado { font-size:0.65rem; padding:3px 6px; border-radius:6px; letter-spacing:.5px; font-weight:600; }
+.badge-noleido { background:#7d3f36; color:#ffd8d2; }
+.badge-leido { background:#2e814f; color:#d4ffe2; }
+
+.mensaje-toolbar { background:#1e2839; padding:10px 14px; border:1px solid #2b3a50; border-radius:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.mensaje-toolbar input[type="text"] { padding:6px 10px; background:#202c3f; border:1px solid #31445c; color:#d5dde7; border-radius:6px; min-width:260px; font-size:0.85rem; }
+.mensaje-toolbar input[type="text"]:focus { outline:2px solid #3a5878; border-color:#4a6a8c; }
+.mensaje-toolbar label { display:flex; align-items:center; gap:6px; font-size:0.8rem; background:#202c3f; padding:6px 10px; border-radius:8px; border:1px solid #31445c; cursor:pointer; user-select:none; }
+.mensaje-toolbar label input { margin:0; }
+.mensaje-toolbar .btn.small { font-size:0.7rem; letter-spacing:.5px; }
+.mensaje-toolbar .btn[disabled] { opacity:.55; cursor:default; }
+
+#tablaMensajes.compact thead th { padding:6px 8px !important; font-size:0.68rem !important; }
+#tablaMensajes.compact tbody td { padding:5px 8px !important; font-size:0.68rem !important; }
+#tablaMensajes.compact .badge-estado { font-size:0.55rem; padding:2px 4px; }
+#tablaMensajes.compact .btn.small { padding:3px 6px; font-size:0.6rem; }
+
+.admin-mensajes-title { margin-top:0; display:flex; align-items:center; gap:12px; font-size:1.4rem; }
+.admin-mensajes-title small { font-size:0.75rem; font-weight:400; color:#8fa4bd; letter-spacing:.5px; }
+
+.mensaje-toolbar-secondary { gap:10px; margin:0 0 12px 0; }
+.mensaje-toolbar-secondary input[type="text"] { min-width:220px; }
+.mensaje-toolbar-secondary label { font-size:0.72rem; }
+.mensaje-toolbar-secondary .btn.small { font-size:0.65rem; }
+.mensaje-toolbar-secondary .btn.mass-read { background:#275b3d; }
+.mensaje-toolbar-secondary .btn.mass-read:hover { background:#1d442f; }
+.mensaje-toolbar-secondary .btn.export-csv { background:#444b5e; }
+.mensaje-toolbar-secondary .btn.export-csv:hover { background:#596074; }
+.admin-table.compact thead th { padding:6px 8px; font-size:0.68rem; }
+.admin-table.compact tbody td { padding:5px 8px; font-size:0.68rem; }
+.admin-table.compact .btn.small { padding:3px 6px; font-size:0.6rem; }
+.admin-table.compact .badge-estado { font-size:0.55rem; padding:2px 4px; }
+.mensaje-visibles-count { font-size:0.65rem; color:#8fa4bd; margin-left:6px; letter-spacing:.5px; }
+
+/* Modal mensajes */
+.mensaje-modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; padding:30px 14px; z-index:300; backdrop-filter: blur(2px); }
+.mensaje-modal.open { display:flex; animation: modalFade .18s ease; }
+.mensaje-modal-dialog { background:#1e2839; width:100%; max-width:720px; border-radius:18px; padding:0; box-shadow:0 10px 34px rgba(0,0,0,0.55); border:1px solid #314057; display:flex; flex-direction:column; max-height:84vh; }
+.mensaje-modal-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px 14px 20px; border-bottom:1px solid #2a3547; background:#232f44; border-radius:18px 18px 0 0; }
+.mensaje-modal-header h3 { color:#fff; font-size:1.15rem; font-weight:600; margin:0; }
+.mensaje-modal-meta { padding:6px 20px 4px 20px; background:#202b3d; border-bottom:1px solid #2a3547; }
+.mensaje-modal-body { color:#d2dae6; padding:16px 20px 8px 20px; overflow:auto; }
+.mensaje-modal-footer { padding:12px 20px 16px 20px; border-top:1px solid #2a3547; background:#202b3d; border-radius:0 0 18px 18px; }
+.modal-close { background:none; border:none; color:#fff; font-size:1.35rem; cursor:pointer; line-height:1; width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition: background .18s, color .18s; }
+.modal-close:hover { background:#2d3b52; color:#ffce7a; }
+@keyframes modalFade { from { opacity:0; transform:translateY(-4px);} to { opacity:1; transform:translateY(0);} }
+
 /* Collapsible sidebar (mobile) */
 @media (max-width: 900px) {
   .admin-layout { position: relative; }

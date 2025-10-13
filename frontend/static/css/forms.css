@@ -1,0 +1,22 @@
+/* Auth, contact and common forms */
+.auth-wrapper { display:flex; flex-direction:column; align-items:center; gap:16px; max-width:420px; width:100%; margin:32px auto 0 auto; box-sizing:border-box; }
+.auth-wrapper h2 { margin-top:0; text-align:center; }
+.auth-card { background-color:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:30px; border-radius:10px; max-width:420px; width:100%; margin:0 auto; }
+.flash-messages { margin-bottom:12px; }
+.flash { padding:8px 10px; border-radius:6px; margin-bottom:8px; }
+.flash.error { background:rgba(255,50,50,0.06); color:#ffdede; }
+.flash.success { background:rgba(50,255,50,0.03); color:#dfffe0; }
+.flash.info { background:rgba(50,100,255,0.03); color:#dfe9ff; }
+.login-form label { display:block; margin-bottom:6px; font-size:.9rem; }
+.login-form input[type=email], .login-form input[type=password], .login-form button { width:100%; max-width:420px; box-sizing:border-box; padding:12px 14px; margin-bottom:14px; border:1px solid var(--border-color); border-radius:6px; background:transparent; color:var(--primary-text-color); }
+.login-form button { background:var(--accent-color); color:var(--main-bg-color); border:1px solid var(--border-color); border-radius:6px; cursor:pointer; }
+.auth-helpers { display:flex; gap:10px; align-items:center; justify-content:center; margin-top:12px; }
+.auth-helpers a { color:var(--accent-color); }
+
+/* Contact */
+.contact-form { display:flex; flex-direction:column; gap:16px; max-width:100%; width:100%; margin:32px 0 0 0; background: rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:30px; border-radius:10px; align-items:stretch; box-sizing:border-box; }
+.contact-form label { font-size:.95rem; margin-bottom:4px; color:var(--accent-color); }
+.contact-form input[type=text], .contact-form input[type=email], .contact-form textarea { width:100%; padding:12px 14px; border:1px solid var(--border-color); border-radius:6px; background:#e0e1dd10; color:var(--primary-text-color); font-size:1rem; resize:vertical; box-sizing:border-box; }
+.contact-form textarea { min-height:100px; max-height:300px; }
+.contact-form button { width:100%; padding:12px 14px; background:var(--accent-color); color:var(--main-bg-color); border:1px solid var(--border-color); border-radius:6px; cursor:pointer; font-size:1.05rem; font-weight:500; margin-top:10px; transition: background .2s; }
+.contact-form button:hover { background:#415a77; color:#fff; }

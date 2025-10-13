@@ -1,0 +1,11 @@
+:root {
+  --main-bg-color: #0d1b2a;
+  --container-bg-color: #1b263b;
+  --primary-text-color: #e0e1dd;
+  --border-color: #415a77;
+  --accent-color: #43b581;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+body { font-family: 'Poppins', sans-serif; background-color: var(--main-bg-color); color: var(--primary-text-color); margin: 0; padding: 0; display: block; }
+a { color: var(--primary-text-color); text-decoration: none; }
