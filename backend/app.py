@@ -288,3 +288,13 @@ def __routes():
         return '<br>'.join(sorted(lines))
     except Exception as e:
         return f'error: {e}', 500
+
+
+@app.route('/__render_index')
+def __render_index():
+    try:
+        # Renderiza la plantilla index.html sin tocar la BD
+        return render_template('index.html', productos_destacados=[])
+    except Exception as e:
+        # Devuelve texto plano con el error de plantilla
+        return f'Template render error: {e}', 500
