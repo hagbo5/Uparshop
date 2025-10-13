@@ -1014,8 +1014,6 @@ a {
     gap: 20px;
 }
 
-/* Earlier verbose .product-card removed; styles consolidated in the canonical block later */
-
 /* --- LOGIN PAGE STYLES --- */
 .auth-wrapper {
     display: flex;
