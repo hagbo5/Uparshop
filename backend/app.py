@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort, current_app
 from dotenv import load_dotenv
 try:
@@ -18,6 +19,12 @@ print("🚀 Iniciando aplicación Uparshop - configuración cargada")
 
 # Inicializar la aplicación Flask con rutas dinámicas para assets
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Asegurar rutas de importación consistentes en DO App Platform y local
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..'))
+for p in [BASE_DIR, PROJECT_ROOT]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 def first_existing(paths):
     for p in paths:
