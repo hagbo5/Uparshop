@@ -57,6 +57,15 @@ app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATE_DIR)
 logging.basicConfig(level=logging.INFO)
 app.logger.setLevel(logging.INFO)
 
+# Log de rutas de templates y estáticos al inicio
+try:
+    print(f"\uD83D\uDCC2 TEMPLATE_DIR: {TEMPLATE_DIR} (exists: {os.path.isdir(TEMPLATE_DIR)})")
+    print(f"\uD83D\uDDC2\uFE0F STATIC_DIR: {STATIC_DIR} (exists: {os.path.isdir(STATIC_DIR)})")
+    app.logger.info(f"Template folder: {TEMPLATE_DIR} (exists: {os.path.isdir(TEMPLATE_DIR)})")
+    app.logger.info(f"Static folder: {STATIC_DIR} (exists: {os.path.isdir(STATIC_DIR)})")
+except Exception:
+    pass
+
 # Configuración de la base de datos (valores por defecto si no están en env)
 DB_USER = os.getenv('DB_USER') or 'doadmin'
 DB_PASS = os.getenv('DB_PASS') or 'AVNS_vpW0rR3lfKCIZfRnYqt'
@@ -298,3 +307,34 @@ def __render_index():
     except Exception as e:
         # Devuelve texto plano con el error de plantilla
         return f'Template render error: {e}', 500
+
+
+@app.route('/__paths')
+def __paths():
+    try:
+        data = {
+            'BASE_DIR': BASE_DIR,
+            'PROJECT_ROOT': PROJECT_ROOT,
+            'cwd': os.getcwd(),
+            'template_folder': app.template_folder,
+            'static_folder': app.static_folder,
+            'TEMPLATE_DIR_exists': os.path.isdir(TEMPLATE_DIR),
+            'STATIC_DIR_exists': os.path.isdir(STATIC_DIR),
+            'index_html_exists': os.path.isfile(os.path.join(TEMPLATE_DIR, 'index.html')),
+            'base_html_exists': os.path.isfile(os.path.join(TEMPLATE_DIR, 'base.html')),
+            'logo_exists': os.path.isfile(os.path.join(STATIC_DIR, 'images', 'Uparshop-logo.png')),
+        }
+        # Listar algunos archivos de templates y estáticos para referencia (sin exceder)
+        try:
+            if os.path.isdir(TEMPLATE_DIR):
+                data['templates_sample'] = sorted(os.listdir(TEMPLATE_DIR))[:25]
+        except Exception:
+            data['templates_sample'] = []
+        try:
+            if os.path.isdir(STATIC_DIR):
+                data['static_sample'] = sorted(os.listdir(STATIC_DIR))[:25]
+        except Exception:
+            data['static_sample'] = []
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
