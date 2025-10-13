@@ -356,7 +356,6 @@
     max-width: 140px;
     max-height: 120px;
     display: block;
-}
 
 /* highlight unread admin messages */
 .message-unread { background: rgba(255,255,0,0.03); }
