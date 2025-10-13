@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from flask import Flask
-from models.models import db, User, Producto, Categoria, ContactMessage
+from models import db, User, Producto, Categoria, ContactMessage
 from sqlalchemy import text, inspect
 import traceback
 
