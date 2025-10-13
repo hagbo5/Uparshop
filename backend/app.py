@@ -1,7 +1,12 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort, current_app
 from dotenv import load_dotenv
-from backend.models.models import db, Producto, Categoria, User, ContactMessage
+try:
+    # when running as a package (e.g., from project root)
+    from backend.models.models import db, Producto, Categoria, User, ContactMessage
+except ModuleNotFoundError:
+    # when running from backend/ as the app root
+    from models.models import db, Producto, Categoria, User, ContactMessage
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
@@ -11,8 +16,27 @@ load_dotenv()
 
 print("🚀 Iniciando aplicación Uparshop - configuración cargada")
 
-# Inicializar la aplicación Flask
-app = Flask(__name__, static_folder="../frontend/static", template_folder="../frontend/templates")
+# Inicializar la aplicación Flask con rutas dinámicas para assets
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def first_existing(paths):
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return paths[0]
+
+TEMPLATE_DIR = first_existing([
+    os.path.join(BASE_DIR, "../frontend/templates"),
+    os.path.join(BASE_DIR, "templates"),
+    os.path.join(BASE_DIR, "frontend/templates"),
+])
+STATIC_DIR = first_existing([
+    os.path.join(BASE_DIR, "../frontend/static"),
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "frontend/static"),
+])
+
+app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATE_DIR)
 
 # Configuración de la base de datos (valores por defecto si no están en env)
 DB_USER = os.getenv('DB_USER') or 'doadmin'
