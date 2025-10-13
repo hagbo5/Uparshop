@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, abort, current_app
 from dotenv import load_dotenv
-from models.models import db, Producto, Categoria, User, ContactMessage
+from backend.models.models import db, Producto, Categoria, User, ContactMessage
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
