@@ -26,22 +26,28 @@ for p in [BASE_DIR, PROJECT_ROOT]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-def first_existing(paths):
+def first_existing(paths, fallback=None, ensure_dir=False):
     for p in paths:
         if os.path.exists(p):
             return p
-    return paths[0]
+    target = fallback or paths[-1]
+    if ensure_dir:
+        try:
+            os.makedirs(target, exist_ok=True)
+        except Exception:
+            pass
+    return target
 
 TEMPLATE_DIR = first_existing([
     os.path.join(BASE_DIR, "../frontend/templates"),
-    os.path.join(BASE_DIR, "templates"),
     os.path.join(BASE_DIR, "frontend/templates"),
-])
+    os.path.join(BASE_DIR, "templates"),
+], fallback=os.path.join(BASE_DIR, "../frontend/templates"), ensure_dir=False)
 STATIC_DIR = first_existing([
     os.path.join(BASE_DIR, "../frontend/static"),
-    os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "frontend/static"),
-])
+    os.path.join(BASE_DIR, "static"),
+], fallback=os.path.join(BASE_DIR, "../frontend/static"), ensure_dir=False)
 
 app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATE_DIR)
 
