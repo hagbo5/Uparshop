@@ -372,8 +372,8 @@ def registrar_producto():
         imagen_url = None
         if imagen_file and imagen_file.filename:
             from werkzeug.utils import secure_filename
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            productos_dir = os.path.join(base_dir, 'static', 'productos')
+            # Guardar SIEMPRE bajo el static_folder real de Flask
+            productos_dir = os.path.join(current_app.static_folder, 'productos')
             if not os.path.exists(productos_dir):
                 os.makedirs(productos_dir)
             filename = secure_filename(imagen_file.filename)
@@ -479,8 +479,7 @@ def editar_producto(producto_id):
 
         if imagen_file and imagen_file.filename:
             from werkzeug.utils import secure_filename
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            productos_dir = os.path.join(base_dir, 'static', 'productos')
+            productos_dir = os.path.join(current_app.static_folder, 'productos')
             if not os.path.exists(productos_dir):
                 os.makedirs(productos_dir)
             filename = secure_filename(imagen_file.filename)
@@ -554,8 +553,8 @@ def eliminar_imagen_producto():
         rel = producto.imagen_url.lstrip('/') if producto.imagen_url else ''
         if rel.startswith('static/'):
             rel = rel.split('static/', 1)[1]
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base_dir, 'static', rel)
+        # Usar el static_folder real configurado en la app
+        path = os.path.join(current_app.static_folder, rel)
         if rel and os.path.isfile(path):
             os.remove(path)
         producto.imagen_url = None

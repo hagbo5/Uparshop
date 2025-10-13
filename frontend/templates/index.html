@@ -4,13 +4,13 @@
 
 {% block content %}
 <div class="home-banner">
-    <img src="/static/images/Uparshop-logo.png" alt="Uparshop Logo" class="home-logo">
+    <img src="{{ url_for('static', filename='images/Uparshop-logo.png') }}" alt="Uparshop Logo" class="home-logo">
     <h1>¡Bienvenido a Uparshop!</h1>
     <p class="home-subtitle">Tu tienda de tecnología favorita. Encuentra lo mejor en computadoras, componentes y más.</p>
 </div>
 
 <div class="home-slider">
-    <img src="/static/images/banner1.jpg" alt="Promoción 1" class="slider-img">
+    <img src="{{ url_for('static', filename='images/banner1.jpg') }}" alt="Promoción 1" class="slider-img" onerror="this.style.display='none'">
     <!-- Puedes agregar más imágenes o un slider JS -->
 </div>
 
@@ -37,7 +37,7 @@
                 {% for producto in productos_destacados %}
                 <div class="carousel-card">
                     <div class="img-wrap">
-                        <img src="{{ producto.imagen_url or '/static/images/no-image.png' }}" alt="{{ producto.nombre }}">
+                        <img src="{{ producto.web_imagen_url }}" alt="{{ producto.nombre }}" class="img-fallback" data-fallback="{{ url_for('static', filename='images/product-placeholder.svg') }}">
                     </div>
                     <h3>{{ producto.nombre }}</h3>
                     <p class="featured-price">${{ producto.precio_unitario }}</p>
@@ -160,6 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => { cards = Array.from(track.children); }, 150);
+    });
+
+    // Fallback de imágenes: si falla la carga, usar placeholder
+    document.querySelectorAll('img.img-fallback').forEach(img => {
+        img.addEventListener('error', () => {
+            const fb = img.getAttribute('data-fallback');
+            if (fb && img.src !== fb) { img.src = fb; }
+        });
     });
 });
 </script>

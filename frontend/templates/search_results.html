@@ -8,16 +8,8 @@
   <div class="products-grid">
     {% for producto in productos %}
     <div class="product-card">
-      {# Imagen: si es URL absoluta la usamos tal cual, si no buscamos en static/images/productos/ #}
-      {# Use resolved imagen_web set by the buscar route when available #}
-  <a href="{{ url_for('main.producto_detalle', producto_id=producto.id_producto) }}">
-        {% if producto.imagen_web %}
-          <img src="{{ producto.imagen_web }}" alt="{{ producto.nombre }}">
-        {% elif producto.imagen and 'http' in producto.imagen %}
-          <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}">
-        {% else %}
-          <img src="{{ url_for('static', filename='images/Uparshop-logo.png') }}" alt="{{ producto.nombre }}">
-        {% endif %}
+      <a href="{{ url_for('main.producto_detalle', producto_id=producto.id_producto) }}">
+        <img class="img-fallback" data-fallback="{{ url_for('static', filename='images/product-placeholder.svg') }}" src="{{ producto.web_imagen_url }}" alt="{{ producto.nombre }}">
       </a>
 
       <div class="product-info">

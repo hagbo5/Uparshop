@@ -44,6 +44,21 @@ class Producto(db.Model):
     def descripcion(self):
         return self.descripcion_detallada or ''
 
+    @property
+    def web_imagen_url(self) -> str:
+        """Devuelve una URL web segura para mostrar la imagen del producto.
+        - Si imagen_url es absoluta (http/https) o empieza con '/', se retorna tal cual.
+        - Si es un nombre de archivo simple, se sirve desde /static/productos/<archivo>.
+        - Si no hay imagen, retorna el placeholder por defecto.
+        """
+        u = (self.imagen_url or '').strip()
+        if not u:
+            return '/static/images/product-placeholder.svg'
+        low = u.lower()
+        if low.startswith('http://') or low.startswith('https://') or u.startswith('/'):
+            return u
+        return f"/static/productos/{u}"
+
 
 class User(db.Model):
     __tablename__ = 'usuarios'

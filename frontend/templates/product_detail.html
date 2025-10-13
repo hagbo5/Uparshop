@@ -3,7 +3,7 @@
 {% block content %}
 <div class="product-detail-layout">
     <div class="product-gallery">
-        <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="product-main-img">
+    <img src="{{ producto.web_imagen_url }}" alt="{{ producto.nombre }}" class="product-main-img img-fallback" data-fallback="{{ url_for('static', filename='images/product-placeholder.svg') }}">
     </div>
     <div class="product-main-info">
         <h1 class="product-title">{{ producto.nombre }}</h1>

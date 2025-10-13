@@ -109,5 +109,20 @@
             </main>
         </div>
     </div>
+    {% block scripts %}
+    {{ super() }}
+    <script>
+    (function(){
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('img.img-fallback').forEach(function(img){
+          img.addEventListener('error', function(){
+            var fb = img.getAttribute('data-fallback');
+            if (fb && img.src !== fb) { img.src = fb; }
+          });
+        });
+      });
+    })();
+    </script>
+    {% endblock %}
 </body>
 </html>
