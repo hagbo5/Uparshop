@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Tienda de Componentes PC{% endblock %}
+
+{% block content %}
+<div class="home-banner">
+    <img src="/static/images/Uparshop-logo.png" alt="Uparshop Logo" class="home-logo">
+    <h1>¡Bienvenido a Uparshop!</h1>
+    <p class="home-subtitle">Tu tienda de tecnología favorita. Encuentra lo mejor en computadoras, componentes y más.</p>
+</div>
+
+<div class="home-slider">
+    <img src="/static/images/banner1.jpg" alt="Promoción 1" class="slider-img">
+    <!-- Puedes agregar más imágenes o un slider JS -->
+</div>
+
+<div class="home-categories">
+    <h2>Categorías principales</h2>
+    <div class="category-list">
+        <a href="/torres" class="category-card"><i class="fas fa-server"></i> Torres</a>
+        <a href="/laptops" class="category-card"><i class="fas fa-laptop"></i> Laptops</a>
+        <a href="/procesadores" class="category-card"><i class="fas fa-microchip"></i> Procesadores</a>
+        <a href="/tarjetas-graficas" class="category-card"><i class="fas fa-video"></i> Tarjetas Gráficas</a>
+        <a href="/perifericos" class="category-card"><i class="fas fa-keyboard"></i> Periféricos</a>
+        <a href="/memorias" class="category-card"><i class="fas fa-memory"></i> Memorias</a>
+        <a href="/fuentes" class="category-card"><i class="fas fa-plug"></i> Fuentes</a>
+        <a href="/juegos" class="category-card"><i class="fas fa-gamepad"></i> Juegos</a>
+    </div>
+</div>
+
+<div class="home-featured">
+    <h2>Productos destacados</h2>
+    <div class="carousel-container">
+        <button class="carousel-btn left" id="carouselPrev" aria-label="Anterior" {% if not productos_destacados %}style="display: none;"{% endif %}><i class="fas fa-chevron-left"></i></button>
+        <div class="carousel-track" id="carouselTrack">
+            {% if productos_destacados %}
+                {% for producto in productos_destacados %}
+                <div class="carousel-card">
+                    <div class="img-wrap">
+                        <img src="{{ producto.imagen_url or '/static/images/no-image.png' }}" alt="{{ producto.nombre }}">
+                    </div>
+                    <h3>{{ producto.nombre }}</h3>
+                    <p class="featured-price">${{ producto.precio_unitario }}</p>
+                    <a href="{{ url_for('main.producto_detalle', producto_id=producto.id_producto) }}" class="btn">Ver detalle</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-products-message">
+                    <p>🛍️ Próximamente tendremos productos increíbles para ti</p>
+                    <p>Mientras tanto, puedes navegar por nuestras categorías</p>
+                </div>
+            {% endif %}
+        </div>
+        <button class="carousel-btn right" id="carouselNext" aria-label="Siguiente" {% if not productos_destacados %}style="display: none;"{% endif %}><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('carouselTrack');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    if (!track) return;
+    let cards = Array.from(track.children);
+    if (!cards.length) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        return; // Exit early if no cards
+    }
+
+    const getGap = () => parseInt(getComputedStyle(track).gap) || 24;
+    const cardWidth = () => (cards[0] ? cards[0].getBoundingClientRect().width : 220);
+    // step: default to cardWidth + gap, but on narrow screens use the visible track width to move one "page"
+    const step = () => {
+        try {
+                if (window.innerWidth <= 900) return track.clientWidth; // move the width of the visible area on phones/tablets
+            return cardWidth() + getGap();
+        } catch (e) { return 240 + getGap(); }
+    };
+
+    // shuffle children for random initial order
+    function shuffleChildren() {
+        const arr = Array.from(track.children);
+        if (arr.length === 0) return; // Safety check
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        // re-append in shuffled order
+        arr.forEach(node => track.appendChild(node));
+        cards = Array.from(track.children);
+    }
+
+    shuffleChildren();
+    const ORIGINAL_COUNT = cards.length;
+
+    function advanceOne() {
+        if (cards.length === 0) return; // Safety check
+        // scroll by one card width
+        const s = step();
+        track.scrollBy({ left: s, behavior: 'smooth' });
+        // after scroll animation, move first child to end and reset scrollLeft
+        setTimeout(() => {
+            const first = track.firstElementChild;
+            if (!first) return;
+            track.appendChild(first);
+            // instantly reset scroll to show the new first element
+            track.scrollLeft = 0;
+            // update cards ref
+            cards = Array.from(track.children);
+            // track cycles: if we've moved ORIGINAL_COUNT times, reshuffle for new random order
+            moves++;
+            if (moves >= ORIGINAL_COUNT) {
+                moves = 0;
+                shuffleChildren();
+            }
+        }, 420);
+    }
+
+    prevBtn && prevBtn.addEventListener('click', () => {
+        if (cards.length === 0) return; // Safety check
+        // manual previous: move last element to front then scroll backward visually
+        const last = track.lastElementChild;
+        if (!last) return;
+        track.insertBefore(last, track.firstElementChild);
+        // jump left by one card so UI shows last as first, then animate to 0
+        track.scrollLeft = step();
+        track.scrollBy({ left: -step(), behavior: 'smooth' });
+    });
+
+    nextBtn && nextBtn.addEventListener('click', () => { advanceOne(); });
+
+    // autoplay - only if there are cards
+    let autoplayId = null;
+    let moves = 0;
+    const AUTOPLAY_MS = 2800;
+    function startAutoplay() { 
+        if (autoplayId || cards.length === 0) return; // Don't start if no cards
+        autoplayId = setInterval(advanceOne, AUTOPLAY_MS); 
+    }
+    function stopAutoplay() { if (!autoplayId) return; clearInterval(autoplayId); autoplayId = null; }
+    
+    // Only start autoplay if we have cards
+    if (cards.length > 0) {
+        startAutoplay();
+    }
+
+    // pause on hover/focus
+    [track, prevBtn, nextBtn].forEach(el => {
+        if (!el) return;
+        el.addEventListener('mouseenter', stopAutoplay);
+        el.addEventListener('mouseleave', startAutoplay);
+    });
+
+    // responsive: update cards list
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => { cards = Array.from(track.children); }, 150);
+    });
+});
+</script>
+
+<div class="home-testimonials">
+    <h2>Lo que opinan nuestros clientes</h2>
+    <div class="testimonial-list">
+        <div class="testimonial-card">
+            <p>"Excelente atención y productos de calidad. ¡Recomendado!"</p>
+            <span>- Juan P.</span>
+        </div>
+        <div class="testimonial-card">
+            <p>"Mi laptop llegó rápido y en perfecto estado. Volveré a comprar."</p>
+            <span>- María G.</span>
+        </div>
+    </div>
+</div>
+
+<footer class="home-footer">
+    <div>
+        <b>Contacto:</b> contacto@uparshop.com | +57 300 123 4567
+    </div>
+    <div>
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-whatsapp"></i></a>
+    </div>
+</footer>
+{% endblock %}

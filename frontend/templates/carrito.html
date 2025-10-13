@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Carrito de compras{% endblock %}
+{% block content %}
+<div class="cart-page">
+    <h2><i class="fas fa-shopping-cart"></i> Carrito de compras</h2>
+    {% if productos %}
+    <form method="post" action="{{ url_for('main.actualizar_carrito') }}" id="cart-form">
+    <table class="cart-table" id="cart-table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio unitario</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in productos %}
+            <tr data-precio="{{ item.producto.precio_unitario }}">
+                <td>
+                    <img src="{{ item.producto.imagen_url }}" alt="{{ item.producto.nombre }}" class="cart-img">
+                    <span class="cart-product-name">{{ item.producto.nombre }}</span>
+                </td>
+                <td class="cart-price">${{ item.producto.precio_unitario }}</td>
+                <td>
+                    <input type="number" name="cantidades[{{ item.producto.id_producto }}]" value="{{ item.cantidad }}" min="1" max="{{ item.producto.cantidad_stock }}" style="width:60px;" class="cart-qty">
+                </td>
+                <td class="cart-subtotal">${{ item.producto.precio_unitario * item.cantidad }}</td>
+                <td>
+                    <button type="submit" name="eliminar" value="{{ item.producto.id_producto }}" class="btn btn-cart" style="background:#e74c3c; color:#fff; padding:4px 12px; font-size:1.1em;">&times;</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" style="text-align:right; font-weight:bold;">Total:</td>
+                <td style="font-weight:bold;" id="cart-total">${{ total }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    <a href="#" class="btn btn-buy" style="margin-top:18px;">Finalizar compra</a>
+    </form>
+    <script>
+    // Actualiza subtotales y total en tiempo real
+    document.querySelectorAll('.cart-qty').forEach(function(input) {
+        input.addEventListener('input', function() {
+            var row = input.closest('tr');
+            var precio = parseFloat(row.getAttribute('data-precio'));
+            var cantidad = parseInt(input.value) || 0;
+            var subtotal = precio * cantidad;
+            row.querySelector('.cart-subtotal').textContent = '$' + subtotal;
+            // Actualizar total general
+            var total = 0;
+            document.querySelectorAll('.cart-qty').forEach(function(inp) {
+                var r = inp.closest('tr');
+                var p = parseFloat(r.getAttribute('data-precio'));
+                var c = parseInt(inp.value) || 0;
+                total += p * c;
+            });
+            document.getElementById('cart-total').textContent = '$' + total;
+        });
+    });
+    </script>
+    {% else %}
+    <div class="cart-empty">
+        <p>Tu carrito está vacío.</p>
+        <a href="/" class="btn">Seguir comprando</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
