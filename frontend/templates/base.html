@@ -10,8 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <!-- Cache-bust query param to force reload when needed -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2" />
+    <!-- Modular CSS: variables, layout, sections, components, responsive -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/_variables.css') }}?v=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}?v=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}?v=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}?v=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}?v=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}?v=1" />
     <!-- Minimal inline fallback eliminado; se usa style.css como fuente única -->
 </head>
 <body class="{% block body_class %}{% endblock %}">
